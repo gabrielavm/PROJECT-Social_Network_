@@ -65,10 +65,6 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const User& user);
 };
 
-size_t getCharCountFromFile(std::ifstream& ifs, char ch);
-
-size_t getLinesCount(const char* FILENAME);
-
 size_t stringLen(const char* string);
 
 bool stringComp(const char* firstStr, const char* secondStr);

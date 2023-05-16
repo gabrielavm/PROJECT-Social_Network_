@@ -14,10 +14,11 @@ int main()
 
 	std::cout << std::endl << "Enter your command: ";
 
-	char* command = new char();
-	std::cin >> command;
+	char* command = new char;
+	std::cin.getline(command, MAX_VALUES_SIZE);
+	bool exit = false;
 
-	while (true)
+	while (exit == false)
 	{
 		if (stringComp(command, "signup") == true)
 		{
@@ -27,7 +28,7 @@ int main()
 			std::cout << "Command list: \n" << "'quit' - exit \n" << "'login' - log in \n";
 
 			std::cout << "\nEnter command: ";
-			std::cin >> command;
+			std::cin.getline(command, MAX_VALUES_SIZE);
 
 			if (stringComp(command, "login") == true)
 			{
@@ -38,24 +39,26 @@ int main()
 				return 0;
 			}
 
-			break;
+			exit = true;
 		}
 		else if (stringComp(command, "login") == true)
 		{
 			logIn(user);
 
-			break;
+			exit = true;
 		}
 		else
 		{
 			std::cout << "Your command is wrong! Try again or quit!";
 			std::cout << std::endl << "Enter your command ('quit' if you want to exit): ";
-			std::cin >> command;
+			std::cin.getline(command, MAX_VALUES_SIZE);
 
 			if (stringComp(command, "quit") == true)
 			{
 				return 0;
 			}
+
+			exit = true;
 		}
 	}
 

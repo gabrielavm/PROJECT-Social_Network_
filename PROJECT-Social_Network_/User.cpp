@@ -8,6 +8,11 @@ void User::setFirstName(const MyString& firstName)
 	{
 		this->firstName = firstName;
 	}
+	else
+	{
+		std::cout << "ERROR! You have to enter your first name!";
+		return;
+	}
 }
 
 void User::setSurname(const MyString& surname)
@@ -16,67 +21,24 @@ void User::setSurname(const MyString& surname)
 	{
 		this->surname = surname;
 	}
+	else
+	{
+		std::cout << "ERROR! You have to enter your surname!";
+		return;
+	}
 }
 
 void User::setPassword(const MyString& password)
 {
-	if (password.length() >= MIN_PASSWORD_LEN)//as the password is important for security 
-		// it must contain at least 5 symbols
+	if (password.length() >= 1)
 	{
 		this->password = password;
 	}
 	else
 	{
-		std::cout << "Your password is not reliable! It should contain at least 5 symbols!";
+		std::cout << "ERROR! You have to enter your password!";
 		return;
 	}
-}
-
-size_t getCharCountFromFile(std::ifstream& ifs, char ch)
-{
-	size_t currentPosition = ifs.tellg();
-	ifs.seekg(0, std::ios::beg);
-
-	if (!ifs.is_open())
-	{
-		return 0;
-	}
-
-	unsigned int count = 0;
-
-	while (true)
-	{
-		char current = ifs.get();
-
-		if (ifs.eof())
-		{
-			break;
-		}
-
-		if (current == ch)
-		{
-			count++;
-		}
-	}
-
-	ifs.clear();
-	ifs.seekg(currentPosition);
-
-	return count;
-}
-
-size_t getLinesCount(const char* FILENAME)
-{
-	std::ifstream file(FILENAME);
-
-	if (!file.is_open())
-	{
-		return 0;
-	}
-
-	return getCharCountFromFile(file, '\n') + 1;
-
-	file.close();
 }
 
 //Helper function to find the length of string
