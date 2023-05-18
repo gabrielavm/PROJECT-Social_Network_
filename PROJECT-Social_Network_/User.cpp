@@ -113,40 +113,6 @@ void User::setId(const size_t& id)
 
 	while (!is.eof())
 	{
-		char buffer[BUFFER_SIZE] = { '\0' };
-		is.getline(buffer, BUFFER_SIZE);
-
-		size_t counter = 0;
-
-		std::stringstream stream(buffer);
-		while (!stream.eof())
-		{
-			char temp[BUFFER_SIZE] = { '\0' };
-			++counter;
-
-			stream.getline(temp, BUFFER_SIZE, ' ');
-
-			if (counter == idIndex)//Using the variable idIndex which value is 4 because
-				//each time we input user's information in the file with the registered users 
-				//the program input them in the exact same sequence. Each row is individual user 
-				// and the fourth value of each row is the user's id
-			{
-				user.turnCharArrIntoId(temp);
-				stream.seekg(0, std::ios::end);//moving the get pointer in the end of the stream 
-				//because the id is already saved and we don't need to read the following information
-			}
-		}
-
-		idArray[idCounter] = user.id;
-		++idCounter;
-	}
-
-	if (id < 0)
-	{
-		return;
-	}
-	else
-	{
 		bool exist = false;//variable which will contain information about the existance of particular 
 		// user's id. If this id already exists in the file with the registered users the value of 
 		// the variable will be true.
