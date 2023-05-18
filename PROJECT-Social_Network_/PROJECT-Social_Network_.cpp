@@ -16,27 +16,39 @@ int main()
 
 	char* command = new char;
 	std::cin.getline(command, MAX_VALUES_SIZE);
+
 	bool exit = false;
 
 	while (exit == false)
 	{
 		if (stringComp(command, "signup") == true)
 		{
-			signUp();
+			bool failRegistration = false;//Variable which will contain information about the registration condition
+			//if the variable is false that means the registration was successful, otherwise the registration failed
 
-			std::cout << std::endl << "Log in your account or exit! \n\n";
-			std::cout << "Command list: \n" << "'quit' - exit \n" << "'login' - log in \n";
+			signUp(failRegistration);
 
-			std::cout << "\nEnter command: ";
-			std::cin.getline(command, MAX_VALUES_SIZE);
-
-			if (stringComp(command, "login") == true)
+			if (failRegistration == true)
 			{
-				logIn(user);
-			}
-			else if (stringComp(command, "quit") == true)
-			{
+				std::cout << "ERROR! Registration failed!\nSome of the user's data was not entered!";
 				return 0;
+			}
+			else
+			{
+				std::cout << std::endl << "Log in your account or exit! \n\n";
+				std::cout << "Command list: \n" << "'quit' - exit \n" << "'login' - log in \n";
+
+				std::cout << "\nEnter command: ";
+				std::cin.getline(command, MAX_VALUES_SIZE);
+
+				if (stringComp(command, "login") == true)
+				{
+					logIn(user);
+				}
+				else if (stringComp(command, "quit") == true)
+				{
+					return 0;
+				}
 			}
 
 			exit = true;
@@ -44,6 +56,8 @@ int main()
 		else if (stringComp(command, "login") == true)
 		{
 			logIn(user);
+
+			user.printUsersInfo();
 
 			exit = true;
 		}
@@ -57,10 +71,10 @@ int main()
 			{
 				return 0;
 			}
-
-			exit = true;
 		}
 	}
+
+	std::cout << user.getFirstName();
 
 	return 0;
 }
