@@ -36,7 +36,7 @@ int main()
 			else
 			{
 				std::cout << std::endl << "Log in your account or exit! \n\n";
-				std::cout << "Command list: \n" << "'quit' - exit \n" << "'login' - log in \n";
+				std::cout << "Command list: \n" << "'quit' - exit the network \n" << "'login' - log in \n";
 
 				std::cout << "\nEnter command: ";
 				std::cin.getline(command, MAX_VALUES_SIZE);
@@ -44,6 +44,13 @@ int main()
 				if (stringComp(command, "login") == true)
 				{
 					logIn(user);
+
+					func(exit, command, user);
+
+					if (exit == true)
+					{
+						return;
+					}
 				}
 				else if (stringComp(command, "quit") == true)
 				{
@@ -57,9 +64,12 @@ int main()
 		{
 			logIn(user);
 
-			user.printUsersInfo();
+			func(exit, command, user);
 
-			exit = true;
+			if (exit = true)
+			{
+				return 0;
+			}
 		}
 		else
 		{
@@ -73,8 +83,6 @@ int main()
 			}
 		}
 	}
-
-	std::cout << user.getFirstName();
 
 	return 0;
 }

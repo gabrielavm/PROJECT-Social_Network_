@@ -38,7 +38,7 @@ void User::setPassword(const MyString& password)
 	}
 }
 
-void User::setId(const size_t& id)
+void User::setId(const size_t id)
 {
 	if (id < 0)
 	{
@@ -50,7 +50,7 @@ void User::setId(const size_t& id)
 	}
 }
 
-void User::setPoints(const size_t& points)
+void User::setPoints(const size_t points)
 {
 	if (points < 0)
 	{
@@ -77,12 +77,12 @@ const MyString& User::getPassword() const
 	return password;
 }
 
-size_t User::getId() const
+const size_t User::getId() const
 {
 	return id;
 }
 
-size_t User::getPoints() const
+const size_t User::getPoints() const
 {
 	return points;
 }

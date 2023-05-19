@@ -1,8 +1,11 @@
 #pragma once
 #include "User.h"
+#include "Topic.h"
 #include "MyStringSso.h"
 
 const int MAX_VALUES_SIZE = 1024;
+const char USERS_LIST_FILE[] = "UsersList.txt";
+const char TOPICS_LIST_FILE[] = "TopicsList.txt";
 
 //Variables that show where the exact value is saved in the file with the registered users
 //For example each time a user is being registered his info is being saved in the 
@@ -87,10 +90,11 @@ size_t getCharCountFromFile(std::ifstream& ifs, char ch)
 
 size_t getLinesCount(const char* FILENAME)
 {
-	std::ifstream file(FILENAME, std::ios::in);
+	std::ifstream file(FILENAME, std::ios::in | std::ios::_Nocreate);
 
 	if (!file.is_open())
 	{
+		std::cout << "ERROR! The file could not be opened!";
 		return 0;
 	}
 
@@ -277,4 +281,81 @@ void logIn(User& user)
 	}
 
 	readFromFile.close();
+}
+
+void createTopic(const User& user)
+{
+	Topic topic;
+
+	char* topicName = new char;
+	std::cout << "Enter the name of the topic you want to create: ";
+	std::cin.getline(topicName, MAX_VALUES_SIZE);
+	topic.setTopicName(topicName);
+
+	char* topicDescription = new char;
+	std::cout << "Enter the description of the topic: ";
+	std::cin.getline(topicDescription, MAX_VALUES_SIZE);
+	topic.setTopicDescription(topicDescription);
+
+	size_t id = getLinesCount(TOPICS_LIST_FILE);//the id for each topic will be the row on which the
+	//exact topic's info is saved. That way the id for each topic will be unique and we will know the 
+	//position of this topic in the file
+
+	topic.setId(id);
+	
+	topic.setCreatorName(user.getFirstName());
+
+	std::ofstream writeInFile(TOPICS_LIST_FILE, std::ios::_Nocreate | std::ios::app);
+	if (!writeInFile.is_open())
+	{
+		std::cout << "ERROR! The file could not be opened!";
+		return;
+	}
+
+	writeInFile << topic;
+
+	writeInFile.close();
+}
+
+void printCommandsList(char* command)
+{
+	std::cout << "\nCommand list:\n"
+		<< "'whoami' - See your information\n"
+		<< "'create' - Create a new topic\n"
+		<< "'quit' - Exit the network\n" << std::endl;
+
+	std::cout << "Enter your command: ";
+	std::cin.getline(command, MAX_VALUES_SIZE);
+}
+
+void func(bool& exit, char* command, const User& user)
+{
+	printCommandsList(command);
+
+	bool quit = false;
+
+	while (quit == false)
+	{
+		if (stringComp(command, "create") == true)
+		{
+			createTopic(user);
+			printCommandsList(command);
+		}
+		else if (stringComp(command, "whoami") == true)
+		{
+			user.printUsersInfo();
+
+			quit = true;
+		}
+		else if (stringComp(command, "quit") == true)
+		{
+			exit = true;
+			return;
+		}
+		else
+		{
+			std::cout << "\nERROR! Wrong command! Try again or exit!\n";
+			std::cin.getline(command, MAX_VALUES_SIZE);
+		}
+	}
 }

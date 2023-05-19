@@ -4,9 +4,7 @@
 #include <sstream>
 #include "MyStringSso.h"
 
-const short MIN_PASSWORD_LEN = 5;
 const int BUFFER_SIZE = 1024;
-const char USERS_LIST_FILE[] = "UsersList.txt";
 
 class User
 {
@@ -26,9 +24,9 @@ public:
 
 	void setPassword(const MyString& password);
 
-	void setId(const size_t& id);
+	void setId(const size_t id);
 
-	void setPoints(const size_t& points);
+	void setPoints(const size_t points);
 
 	const MyString& getFirstName() const;
 
@@ -36,9 +34,9 @@ public:
 
 	const MyString& getPassword() const;
 
-	size_t getId() const;
+	const size_t getId() const;
 
-	size_t getPoints() const;
+	const size_t getPoints() const;
 
 	const void printUsersInfo() const;
 
