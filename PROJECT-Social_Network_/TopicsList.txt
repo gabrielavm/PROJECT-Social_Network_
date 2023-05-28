@@ -1,8 +1,4 @@
 1
-user3
-oop in Java
-Specific features of oop in Java
-5
-user1
+user4
 Advanced git questions
 A place for asking complicated questions concerning git

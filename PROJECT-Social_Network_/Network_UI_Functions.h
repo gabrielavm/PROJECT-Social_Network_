@@ -53,6 +53,21 @@ bool stringComp(const char* firstStr, const char* secondStr)
 	return false;
 }
 
+void stringCopy(MyString& original, char* copy)
+{
+	for (int i = 0; i < original.length() + 1; ++i)
+	{
+		if (i != original.length())
+		{
+			copy[i] = original[i];
+		}
+		else
+		{
+			copy[i] = '\0';
+		}
+	}
+}
+
 //Using the 'getCharCountFromFile' and 'getLinesCount' functions that we implemented during lectures
 //github: Angeld55
 size_t getCharCountFromFile(std::ifstream& ifs, char ch)
@@ -90,7 +105,7 @@ size_t getCharCountFromFile(std::ifstream& ifs, char ch)
 
 size_t getLinesCount(const char* FILENAME)
 {
-	std::ifstream file(FILENAME, std::ios::in | std::ios::_Nocreate);
+	std::ifstream file(FILENAME);
 
 	if (!file.is_open())
 	{
@@ -283,6 +298,29 @@ void logIn(User& user)
 	readFromFile.close();
 }
 
+void logOut(User& user)
+{
+	std::cout << "\nGoodbye, " << user.getFirstName() << " " << user.getSurname() << "!\n";
+	user.setFirstName("");
+	user.setSurname("");
+	user.setPassword("");
+	user.setId(0);
+	user.setPoints(0);
+}
+
+void logOutHelperFunction(bool logOut, char* command)
+{
+	if (logOut == true)
+	{
+		std::cout << std::endl << "\nSign up, log in your account or exit! \n\n";
+		std::cout << "Command list: \n" << "'signup' - sign up\n" << "'login' - log in \n"
+			<< "'quit' - exit the network \n"  ;
+
+		std::cout << "\nEnter command: ";
+		std::cin.getline(command, MAX_VALUES_SIZE);
+	}
+}
+
 void createTopic(const User& user)
 {
 	Topic topic;
@@ -315,6 +353,23 @@ void createTopic(const User& user)
 	writeInFile << topic;
 
 	writeInFile.close();
+
+	MyString topicFileName(topic.getTopicName());
+	topicFileName += (".txt");//creating the name of the file for the topic 
+
+	char* tempTopicFileName = new char[topicFileName.length() + 1];
+	stringCopy(topicFileName, tempTopicFileName);
+
+	std::ofstream topicFile(tempTopicFileName);//Create a file for each topic
+	if (!topicFile.is_open())
+	{
+		std::cout << "ERROR! The file could not be created!";
+		return;
+	}
+
+	std::cout << "The topic is created successfully!\n";
+
+	topicFile.close();
 }
 
 void printCommandsList(char* command)
@@ -322,13 +377,14 @@ void printCommandsList(char* command)
 	std::cout << "\nCommand list:\n"
 		<< "'whoami' - See your information\n"
 		<< "'create' - Create a new topic\n"
-		<< "'quit' - Exit the network\n" << std::endl;
+		<< "'quit' - Exit the network\n"
+		<< "'logout' - Log out from your account\n\n";
 
 	std::cout << "Enter your command: ";
 	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
-void func(bool& exit, char* command, const User& user)
+void func(bool& exit, bool& logout, char* command, User& user)
 {
 	printCommandsList(command);
 
@@ -344,12 +400,17 @@ void func(bool& exit, char* command, const User& user)
 		else if (stringComp(command, "whoami") == true)
 		{
 			user.printUsersInfo();
-
-			quit = true;
+			printCommandsList(command);
 		}
 		else if (stringComp(command, "quit") == true)
 		{
 			exit = true;
+			return;
+		}
+		else if(stringComp(command, "logout") == true)
+		{
+			logOut(user);
+			logout = true;
 			return;
 		}
 		else

@@ -18,6 +18,7 @@ int main()
 	std::cin.getline(command, MAX_VALUES_SIZE);
 
 	bool exit = false;
+	bool logOut = false;
 
 	while (exit == false)
 	{
@@ -45,11 +46,13 @@ int main()
 				{
 					logIn(user);
 
-					func(exit, command, user);
+					func(exit, logOut, command, user);
+
+					logOutHelperFunction(logOut, command);
 
 					if (exit == true)
 					{
-						return;
+						return 0;
 					}
 				}
 				else if (stringComp(command, "quit") == true)
@@ -57,16 +60,16 @@ int main()
 					return 0;
 				}
 			}
-
-			exit = true;
 		}
 		else if (stringComp(command, "login") == true)
 		{
 			logIn(user);
 
-			func(exit, command, user);
+			func(exit, logOut, command, user);
 
-			if (exit = true)
+			logOutHelperFunction(logOut, command);
+
+			if (exit == true)
 			{
 				return 0;
 			}
