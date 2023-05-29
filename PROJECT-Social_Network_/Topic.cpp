@@ -72,7 +72,7 @@ const size_t Topic::getId() const
 
 const void Topic::printTopicInfo() const
 {
-	std::cout << "Name: " << this->topicName << std::endl
+	std::cout << "\nName: " << this->topicName << std::endl
 		<< "Description: " << this->topicDescription << std::endl
 		<< "Created by: " << this->creatorName << std::endl
 		<< "ID: " << this->id << std::endl;

@@ -80,6 +80,7 @@ void MyString::free()
 		delete[] _data;
 	_data = nullptr;
 }
+
 MyString::~MyString()
 {
 	free();

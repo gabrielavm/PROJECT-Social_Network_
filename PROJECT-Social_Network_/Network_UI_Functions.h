@@ -32,11 +32,14 @@ size_t stringLen(const char* string)
 //Helper function that compares two strings
 bool stringComp(const char* firstStr, const char* secondStr)
 {
-	if (stringLen(firstStr) == stringLen(secondStr))
+	size_t firstStrLen = stringLen(firstStr);
+	size_t secondStrLen = stringLen(secondStr);
+
+	if (firstStrLen == secondStrLen)
 	{
 		int equal = 0;
 
-		for (size_t i = 0; i < strlen(firstStr); ++i)
+		for (size_t i = 0; i < firstStrLen; ++i)
 		{
 			if (firstStr[i] == secondStr[i])
 			{
@@ -44,7 +47,7 @@ bool stringComp(const char* firstStr, const char* secondStr)
 			}
 		}
 
-		if (equal == stringLen(firstStr))
+		if (equal == firstStrLen)
 		{
 			return true;
 		}
@@ -264,7 +267,7 @@ bool findUser(std::ifstream& ifs , User& user)
 	return false;
 }
 
-void logIn(User& user)
+void logIn(User& user, bool& exit)
 {
 	User tempUser;
 
@@ -294,6 +297,7 @@ void logIn(User& user)
 	else
 	{
 		std::cout << "Your name or password is wrong!\n";
+		exit = true;
 		return;
 	}
 
@@ -436,16 +440,96 @@ void printCommandsList(char* command)
 	std::cout << "\nCommand list:\n"
 		<< "'whoami' - See your information\n"
 		<< "'about' - show info about topic by supplied id\n"
+		<< "'search' (key word) - show topics which contain the key word\n"
 		<< "'create' - Create a new topic\n"
-		<< "'logout' - Log out from your account\n\n"
+		<< "'logout' - Log out from your account\n"
 		<< "'exit' - Exit the network\n";
 
-	std::cout << "Enter your command: ";
+	std::cout << "\nEnter your command: ";
 	std::cin.getline(command, MAX_VALUES_SIZE);
+}
+
+void search(char* keyword, const Topic* topics, Topic* selectedTopics, const size_t numberOfTopics)
+{
+	size_t countOfSelectedTopics = 0;//counter for the added topics in 'selectedTopics' array of class Topic
+	//when this counter is equal to zero that means that there is no topic that include the keyword 
+
+	for (size_t i = 0; i < numberOfTopics; ++i)
+	{
+		char* tempKeyword = new char[topics[i].getTopicName().length()];
+		std::stringstream stream(topics[i].getTopicName().c_str());
+
+		while (!stream.eof())
+		{
+			stream.getline(tempKeyword, topics[i].getTopicName().length(), ' ');
+
+			if (stringComp(tempKeyword, keyword) == true)
+			{
+				selectedTopics[countOfSelectedTopics] = topics[i];
+				++countOfSelectedTopics;
+				break;//brake in order not to continue check the other words of the exact 
+				//topic name after finding the keyword
+			}
+		}
+	}
+
+	if (countOfSelectedTopics == 0)
+	{
+		std::cout << "\nERROR! There is no topic that contains this keyword!";
+		return;
+	}
+	else
+	{
+		std::cout << "\nSearch results for keyword '" << keyword << "' :\n";
+		for (size_t i = 0; i < countOfSelectedTopics; ++i)
+		{
+			std::cout << i + 1 << ". " << selectedTopics[i].getTopicName()
+				<< " {id: " << selectedTopics[i].getId() << "}\n";
+		}
+	}
+}
+
+void commandsListForTopics(char* commandForTopics)
+{
+	std::cout << "\nCommands list :\n"
+		<< "'about' (id) - see the topic info by supplied id\n"
+		<< "'exit' - exit the network\n";
+
+	std::cout << "\nEnter your command: ";
+	std::cin.getline(commandForTopics, MAX_VALUES_SIZE);
+}
+
+void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t numberOfTopics, bool& exit)
+{
+	commandsListForTopics(commandForTopics);
+
+	if (stringComp(commandForTopics, "about") == true)
+	{
+		std::cout << "\nEnter the id of the topic you want to check info about: ";
+		size_t id;
+		std::cin >> id;
+
+		for (size_t i = 0; i < numberOfTopics; ++i)
+		{
+			if (id == selectedTopics[i].getId())
+			{
+				selectedTopics[i].printTopicInfo();
+			}
+		}
+	}
+	else if (stringComp(commandForTopics, "exit") == true)
+	{
+		exit = true;
+		return;
+	}
 }
 
 void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 {
+	size_t numberOfTopics = getLinesCount(TOPICS_LIST_FILE) / 4;
+	Topic* selectedTopics = new Topic[numberOfTopics];
+	char* commandForTopics = new char;
+
 	printCommandsList(command);
 
 	bool quit = false;
@@ -461,6 +545,19 @@ void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 		{
 			user.printUsersInfo();
 			printCommandsList(command);
+		}
+		else if (stringComp(command, "search") == true)
+		{
+			std::cout << "\nEnter key word: ";
+			char* keyWord = new char;
+			std::cin.getline(keyWord, MAX_VALUES_SIZE);
+			search(keyWord, topics, selectedTopics, numberOfTopics);
+			commandsForTopics(commandForTopics, selectedTopics, numberOfTopics, exit);
+
+			if (exit == true)
+			{
+				return;
+			}
 		}
 		else if(stringComp(command, "logout") == true)
 		{

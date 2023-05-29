@@ -50,9 +50,19 @@ int main()
 
 				if (stringComp(command, "login") == true)
 				{
-					logIn(user);
+					logIn(user, exit);
+
+					if (exit == true)
+					{
+						return 0;
+					}
 
 					func(exit, logOut, command, user, topics);
+
+					if (exit == true)
+					{
+						return 0;
+					}
 
 					logOutHelperFunction(logOut, command);
 
@@ -69,9 +79,19 @@ int main()
 		}
 		else if (stringComp(command, "login") == true)
 		{
-			logIn(user);
+			logIn(user, exit);
+
+			if (exit == true)
+			{
+				return 0;
+			}
 
 			func(exit, logOut, command, user, topics);
+
+			if (exit == true)
+			{
+				return 0;
+			}
 
 			logOutHelperFunction(logOut, command);
 
