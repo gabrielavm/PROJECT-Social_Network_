@@ -189,20 +189,22 @@ void fillUserInfo(const char* buffer, User& user)
 
 		++posCounter;
 		stream.getline(tempValue, BUFFER_SIZE, ' ');
+		size_t tempId;
+		size_t tempPoints;
 
-		if (posCounter == surnameIndex)
+		switch (posCounter)
 		{
+		case surnameIndex :
 			user.setSurname(tempValue);
-		}
-		else if (posCounter == idIndex)
-		{
-			size_t tempId = turnCharArrayIntoNum(tempValue, user.getId());
+			break;
+		case idIndex:
+			tempId = turnCharArrayIntoNum(tempValue, user.getId());
 			user.setId(tempId);
-		}
-		else if (posCounter == pointsIndex)
-		{
-			size_t tempPoints = turnCharArrayIntoNum(tempValue, user.getPoints());
+			break;
+		case pointsIndex:
+			tempPoints = turnCharArrayIntoNum(tempValue, user.getPoints());
 			user.setPoints(tempPoints);
+			break;
 		}
 	}
 }
@@ -287,7 +289,7 @@ void logIn(User& user)
 	if (findUser(readFromFile, tempUser) == true)
 	{
 		user = tempUser;
-		std::cout << "Welcome back, " << user.getFirstName() << " :) !\n";
+		std::cout << "\nWelcome back, " << user.getFirstName() << " :) !\n";
 	}
 	else
 	{
@@ -314,14 +316,64 @@ void logOutHelperFunction(bool logOut, char* command)
 	{
 		std::cout << std::endl << "\nSign up, log in your account or exit! \n\n";
 		std::cout << "Command list: \n" << "'signup' - sign up\n" << "'login' - log in \n"
-			<< "'quit' - exit the network \n"  ;
+			<< "'exit' - exit the network \n"  ;
 
 		std::cout << "\nEnter command: ";
 		std::cin.getline(command, MAX_VALUES_SIZE);
 	}
 }
 
-void createTopic(const User& user)
+void readTopicsFromFile(Topic* topics)
+{
+	std::ifstream topicFile(TOPICS_LIST_FILE);
+	if (!topicFile.is_open())
+	{
+		std::cout << "ERROR! The file could not be opened!";
+		return;
+	}
+
+	//There is one file with information of all topics 
+	//each 4 lines correspond to only one topic
+	//For example the first line is the id of the first topic, the second line is the 
+	//creator's name of the first topic, the third line is the name of the first topic and the
+	//fourth line is the description of the first topic.
+	//The next 4 lines are for the second topic and so on.
+	//That is the reason why we have 'positionCount' variable which counts the lines,
+	//so we know what component of the topic info to fill.
+	size_t positionCount = 0;
+	size_t topicsCount = 0;//increases when we have stored all the info for one topic
+
+	while (!topicFile.eof())
+	{
+		char buffer[BUFFER_SIZE] = { '\0' };
+		topicFile.getline(buffer, BUFFER_SIZE);
+		++positionCount;
+		size_t tempId;
+
+		switch (positionCount)
+		{
+		case 1:
+			tempId = turnCharArrayIntoNum(buffer, topics[topicsCount].getId());
+			topics[topicsCount].setId(tempId);
+			break;
+		case 2:
+			topics[topicsCount].setCreatorName(buffer);
+			break;
+		case 3:
+			topics[topicsCount].setTopicName(buffer);
+			break;
+		case 4:
+			topics[topicsCount].setTopicDescription(buffer);
+			++topicsCount;
+			positionCount = 0;
+			break;
+		}
+	}
+
+	topicFile.close();
+}
+
+void createTopic(const User& user, Topic* topics)
 {
 	Topic topic;
 
@@ -369,6 +421,13 @@ void createTopic(const User& user)
 
 	std::cout << "The topic is created successfully!\n";
 
+	delete[] topics;
+	size_t linesCount = getLinesCount(TOPICS_LIST_FILE);
+	size_t numberOfTopics = linesCount / 4;
+	topics = new Topic[numberOfTopics];
+
+	readTopicsFromFile(topics);
+
 	topicFile.close();
 }
 
@@ -376,15 +435,16 @@ void printCommandsList(char* command)
 {
 	std::cout << "\nCommand list:\n"
 		<< "'whoami' - See your information\n"
+		<< "'about' - show info about topic by supplied id\n"
 		<< "'create' - Create a new topic\n"
-		<< "'quit' - Exit the network\n"
-		<< "'logout' - Log out from your account\n\n";
+		<< "'logout' - Log out from your account\n\n"
+		<< "'exit' - Exit the network\n";
 
 	std::cout << "Enter your command: ";
 	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
-void func(bool& exit, bool& logout, char* command, User& user)
+void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 {
 	printCommandsList(command);
 
@@ -394,7 +454,7 @@ void func(bool& exit, bool& logout, char* command, User& user)
 	{
 		if (stringComp(command, "create") == true)
 		{
-			createTopic(user);
+			createTopic(user, topics);
 			printCommandsList(command);
 		}
 		else if (stringComp(command, "whoami") == true)
@@ -402,15 +462,15 @@ void func(bool& exit, bool& logout, char* command, User& user)
 			user.printUsersInfo();
 			printCommandsList(command);
 		}
-		else if (stringComp(command, "quit") == true)
-		{
-			exit = true;
-			return;
-		}
 		else if(stringComp(command, "logout") == true)
 		{
 			logOut(user);
 			logout = true;
+			return;
+		}
+		else if (stringComp(command, "exit") == true)
+		{
+			exit = true;
 			return;
 		}
 		else

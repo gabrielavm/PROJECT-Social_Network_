@@ -8,6 +8,12 @@ int main()
 {
 	User user;
 
+	size_t linesCount = getLinesCount(TOPICS_LIST_FILE);
+	size_t numberOfTopics = linesCount / 4;
+	Topic* topics = new Topic[numberOfTopics];
+
+	readTopicsFromFile(topics);
+
 	std::cout << "SOCIAL NETWORK" << std::endl;
 	std::cout << " 1) Enter 'signup' command if you don't have account!" << std::endl
 		<< " 2) Enter 'login' command if you have acconut" << std::endl;
@@ -37,7 +43,7 @@ int main()
 			else
 			{
 				std::cout << std::endl << "Log in your account or exit! \n\n";
-				std::cout << "Command list: \n" << "'quit' - exit the network \n" << "'login' - log in \n";
+				std::cout << "Command list: \n" << "'exit' - exit the network \n" << "'login' - log in \n";
 
 				std::cout << "\nEnter command: ";
 				std::cin.getline(command, MAX_VALUES_SIZE);
@@ -46,7 +52,7 @@ int main()
 				{
 					logIn(user);
 
-					func(exit, logOut, command, user);
+					func(exit, logOut, command, user, topics);
 
 					logOutHelperFunction(logOut, command);
 
@@ -55,7 +61,7 @@ int main()
 						return 0;
 					}
 				}
-				else if (stringComp(command, "quit") == true)
+				else if (stringComp(command, "exit") == true)
 				{
 					return 0;
 				}
@@ -65,7 +71,7 @@ int main()
 		{
 			logIn(user);
 
-			func(exit, logOut, command, user);
+			func(exit, logOut, command, user, topics);
 
 			logOutHelperFunction(logOut, command);
 
@@ -74,13 +80,17 @@ int main()
 				return 0;
 			}
 		}
+		else if (stringComp(command, "exit") == true)
+		{
+			return 0;
+		}
 		else
 		{
-			std::cout << "Your command is wrong! Try again or quit!";
-			std::cout << std::endl << "Enter your command ('quit' if you want to exit): ";
+			std::cout << "Your command is wrong! Try again or exit!";
+			std::cout << std::endl << "Enter your command ('exit' if you want to exit the network): ";
 			std::cin.getline(command, MAX_VALUES_SIZE);
 
-			if (stringComp(command, "quit") == true)
+			if (stringComp(command, "exit") == true)
 			{
 				return 0;
 			}
