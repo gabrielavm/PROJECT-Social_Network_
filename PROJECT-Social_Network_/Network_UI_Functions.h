@@ -4,6 +4,7 @@
 #include "MyStringSso.h"
 
 const int MAX_VALUES_SIZE = 1024;
+const int MAX_TOPICS_NUMBER = 500;
 const char USERS_LIST_FILE[] = "UsersList.txt";
 const char TOPICS_LIST_FILE[] = "TopicsList.txt";
 
@@ -197,7 +198,7 @@ void fillUserInfo(const char* buffer, User& user)
 
 		switch (posCounter)
 		{
-		case surnameIndex :
+		case surnameIndex:
 			user.setSurname(tempValue);
 			break;
 		case idIndex:
@@ -213,7 +214,7 @@ void fillUserInfo(const char* buffer, User& user)
 }
 
 //Function that checks if some user is already registered
-bool findUser(std::ifstream& ifs , User& user)
+bool findUser(std::ifstream& ifs, User& user)
 {
 	User tempUser;
 	size_t lineNumber = 0;//The line with the user's info
@@ -320,7 +321,7 @@ void logOutHelperFunction(bool logOut, char* command)
 	{
 		std::cout << std::endl << "\nSign up, log in your account or exit! \n\n";
 		std::cout << "Command list: \n" << "'signup' - sign up\n" << "'login' - log in \n"
-			<< "'exit' - exit the network \n"  ;
+			<< "'exit' - exit the network \n";
 
 		std::cout << "\nEnter command: ";
 		std::cin.getline(command, MAX_VALUES_SIZE);
@@ -396,7 +397,7 @@ void createTopic(const User& user, Topic* topics)
 	//position of this topic in the file
 
 	topic.setId(id);
-	
+
 	topic.setCreatorName(user.getFirstName());
 
 	std::ofstream writeInFile(TOPICS_LIST_FILE, std::ios::_Nocreate | std::ios::app);
@@ -439,8 +440,7 @@ void printCommandsList(char* command)
 {
 	std::cout << "\nCommand list:\n"
 		<< "'whoami' - See your information\n"
-		<< "'about' - show info about topic by supplied id\n"
-		<< "'search' (key word) - show topics which contain the key word\n"
+		<< "'search' - See selected topics related to keyword\n"
 		<< "'create' - Create a new topic\n"
 		<< "'logout' - Log out from your account\n"
 		<< "'exit' - Exit the network\n";
@@ -449,7 +449,7 @@ void printCommandsList(char* command)
 	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
-void search(char* keyword, const Topic* topics, Topic* selectedTopics, const size_t numberOfTopics)
+void search(char* keyword, const Topic* topics, Topic* selectedTopics, const size_t numberOfTopics, bool& goBack)
 {
 	size_t countOfSelectedTopics = 0;//counter for the added topics in 'selectedTopics' array of class Topic
 	//when this counter is equal to zero that means that there is no topic that include the keyword 
@@ -475,7 +475,8 @@ void search(char* keyword, const Topic* topics, Topic* selectedTopics, const siz
 
 	if (countOfSelectedTopics == 0)
 	{
-		std::cout << "\nERROR! There is no topic that contains this keyword!";
+		std::cout << "\nERROR! There is no topic that contains this keyword!\n";
+		goBack = true;
 		return;
 	}
 	else
@@ -493,34 +494,122 @@ void commandsListForTopics(char* commandForTopics)
 {
 	std::cout << "\nCommands list :\n"
 		<< "'about' (id) - see the topic info by supplied id\n"
+		<< "'open' - open the topic\n"
+		<< "'quit' - go back to the generel menu\n"
 		<< "'exit' - exit the network\n";
 
 	std::cout << "\nEnter your command: ";
 	std::cin.getline(commandForTopics, MAX_VALUES_SIZE);
 }
 
-void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t numberOfTopics, bool& exit)
+void open(MyString filename)
 {
+	filename += ".txt";
+	char* tempFilename = new char[filename.length() + 1];
+	stringCopy(filename, tempFilename);
+
+	std::ifstream readTopic(tempFilename);
+	if (!readTopic.is_open())
+	{
+		std::cout << "ERROR! The file could not be opened!\n";
+		return;
+	}
+
+	std::cout << "FILE OPENED!!!!!\n";
+
+	readTopic.close();
+}
+
+void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t numberOfTopics, bool& goBack, bool& exit)
+{
+	bool localExit = false;
+
 	commandsListForTopics(commandForTopics);
 
-	if (stringComp(commandForTopics, "about") == true)
+	while (localExit == false)
 	{
-		std::cout << "\nEnter the id of the topic you want to check info about: ";
-		size_t id;
-		std::cin >> id;
-
-		for (size_t i = 0; i < numberOfTopics; ++i)
+		if (stringComp(commandForTopics, "about") == true)
 		{
-			if (id == selectedTopics[i].getId())
+			bool find = false;
+
+			std::cout << "\nEnter the id of the topic you want to check info about: ";
+			size_t id;
+			std::cin >> id;
+
+			for (size_t i = 0; i < numberOfTopics; ++i)
 			{
-				selectedTopics[i].printTopicInfo();
+				if (id == selectedTopics[i].getId())
+				{
+					find = true;
+					selectedTopics[i].printTopicInfo();
+				}
+			}
+
+			if (find == false)
+			{
+				std::cout << "Incorrect id!\n";
+			}
+
+			std::cin.get();
+		}
+		else if (stringComp(commandForTopics, "open") == true)
+		{
+			std::cout << "\n1. Open topic by supplied id\n"
+				<< "2. Open topic by supplied full topic title\n"
+				<< "\nEnter the number of the command you want to use(1 or 2):";
+
+			int choice;
+			std::cin >> choice;
+
+			if (choice == 1)
+			{
+				int currentId;
+				std::cout << "Enter the id: ";
+				std::cin >> currentId;
+
+				for (size_t i = 0; i < numberOfTopics; ++i)
+				{
+					if (currentId == selectedTopics[i].getId())
+					{
+						open(selectedTopics[i].getTopicName());
+					}
+				}
+			}
+			else if (choice == 2)
+			{
+				MyString title;
+				char* currentTitle = new char;
+				std::cout << "Enter the full title: ";
+				std::cin.get();
+				std::cin.getline(currentTitle, MAX_VALUES_SIZE);
+
+				title = (currentTitle);
+
+				for (size_t i = 0; i < numberOfTopics; ++i)
+				{
+					if (title == selectedTopics[i].getTopicName())
+					{
+						open(selectedTopics[i].getTopicName());
+					}
+				}
+			}
+			else
+			{
+				std::cout << "Wrong command!";
 			}
 		}
-	}
-	else if (stringComp(commandForTopics, "exit") == true)
-	{
-		exit = true;
-		return;
+		else if (stringComp(commandForTopics, "quit") == true)
+		{
+			goBack = true;
+			return;
+		}
+		else if (stringComp(commandForTopics, "exit") == true)
+		{
+			exit = true;
+			return;
+		}
+
+		commandsListForTopics(commandForTopics);
 	}
 }
 
@@ -548,18 +637,33 @@ void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 		}
 		else if (stringComp(command, "search") == true)
 		{
+			bool goBack = false;
+
 			std::cout << "\nEnter key word: ";
 			char* keyWord = new char;
 			std::cin.getline(keyWord, MAX_VALUES_SIZE);
-			search(keyWord, topics, selectedTopics, numberOfTopics);
-			commandsForTopics(commandForTopics, selectedTopics, numberOfTopics, exit);
+			search(keyWord, topics, selectedTopics, numberOfTopics, goBack);
+
+			if (goBack == true)
+			{
+				printCommandsList(command);
+			}
+			else
+			{
+				commandsForTopics(commandForTopics, selectedTopics, numberOfTopics, goBack, exit);
+
+				if (goBack == true)
+				{
+					printCommandsList(command);
+				}
+			}
 
 			if (exit == true)
 			{
 				return;
 			}
 		}
-		else if(stringComp(command, "logout") == true)
+		else if (stringComp(command, "logout") == true)
 		{
 			logOut(user);
 			logout = true;

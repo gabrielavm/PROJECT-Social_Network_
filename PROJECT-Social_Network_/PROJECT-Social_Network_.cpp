@@ -8,10 +8,7 @@ int main()
 {
 	User user;
 
-	size_t linesCount = getLinesCount(TOPICS_LIST_FILE);
-	size_t numberOfTopics = linesCount / 4;
-	Topic* topics = new Topic[numberOfTopics];
-
+	Topic* topics = new Topic[MAX_TOPICS_NUMBER];
 	readTopicsFromFile(topics);
 
 	std::cout << "SOCIAL NETWORK" << std::endl;
