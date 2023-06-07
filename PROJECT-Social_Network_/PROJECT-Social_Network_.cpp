@@ -9,6 +9,7 @@ int main()
 	User user;
 
 	Topic* topics = new Topic[MAX_TOPICS_NUMBER];
+
 	readTopicsFromFile(topics);
 
 	std::cout << "SOCIAL NETWORK" << std::endl;

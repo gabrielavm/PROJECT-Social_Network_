@@ -2,6 +2,7 @@
 #include "User.h"
 #include "Topic.h"
 #include "MyStringSso.h"
+#include "Vector.hpp"
 
 const int MAX_VALUES_SIZE = 1024;
 const int MAX_TOPICS_NUMBER = 500;
@@ -431,7 +432,7 @@ void createTopic(const User& user, Topic* topics)
 	size_t numberOfTopics = linesCount / 4;
 	topics = new Topic[numberOfTopics];
 
-	readTopicsFromFile(topics);
+	//readTopicsFromFile(topics);
 
 	topicFile.close();
 }
@@ -502,11 +503,154 @@ void commandsListForTopics(char* commandForTopics)
 	std::cin.getline(commandForTopics, MAX_VALUES_SIZE);
 }
 
-void open(MyString filename)
+void createQuestion(Question& question, char* filename)
 {
-	filename += ".txt";
-	char* tempFilename = new char[filename.length() + 1];
-	stringCopy(filename, tempFilename);
+	char* askQuestion = new char;
+	std::cout << "\nEnter your question: ";
+	std::cin.getline(askQuestion, MAX_VALUES_SIZE);
+	question.setTitle(askQuestion);
+
+	char* content = new char;
+	std::cout << "\nEnter the description of the question: ";
+	std::cin.getline(content, MAX_VALUES_SIZE);
+	question.setContent(content);
+
+	question.setId(getLinesCount(filename));
+}
+
+void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
+{
+	Question tempQuestion;
+	size_t counter = 0;
+	bool isQuestion = false;
+	size_t tempId;
+	size_t numberOfQuestions = 0;
+
+	while (!stream.eof())
+	{
+		char buffer[BUFFER_SIZE] = { '\0' };
+		stream.getline(buffer, BUFFER_SIZE);
+
+		if (stringComp(buffer, "question:"))
+		{
+			isQuestion = true;
+		}
+
+		if (counter == 1 && isQuestion == true)
+		{
+			tempId = turnCharArrayIntoNum(buffer, tempQuestion.getId());
+			tempQuestion.setId(tempId);
+		}
+		else if (counter == 2 && isQuestion == true)
+		{
+			tempQuestion.setTitle(buffer);
+		}
+		else if (counter == 3 && isQuestion == true)
+		{
+			tempQuestion.setContent(buffer);
+			topic.setQuestion(tempQuestion);
+			++numberOfQuestions;
+			counter = 0;
+			isQuestion = false;
+		}
+
+		if (isQuestion == true)
+		{
+			++counter;
+		}
+	}
+
+	for (size_t i = 0; i < numberOfQuestions; ++i)
+	{
+		std::cout << i + 1 << ". " << topic.getQuestions()[i].getTitle() << " {id: "
+			<< topic.getQuestions()[i].getId() << "}\n";
+	}
+	std::cout << std::endl;
+}
+
+void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentIndex)
+{
+	Comment tempComment;
+	size_t counter = 0;
+	bool isComment = false;
+	size_t tempId;
+	size_t tempUpvote;
+	size_t tempDownvote;
+	size_t numberOfComments = 0;
+
+	while (!stream.eof())
+	{
+		char buffer[BUFFER_SIZE] = { '\0' };
+		stream.getline(buffer, BUFFER_SIZE);
+
+		if (stringComp(buffer, "comment:"))
+		{
+			isComment = true;
+		}
+
+		if (counter == 1 && isComment == true)
+		{
+			tempId = turnCharArrayIntoNum(buffer, tempComment.getId());
+			tempComment.setId(tempId);
+		}
+		else if (counter == 2 && isComment == true)
+		{
+			tempComment.setCreatorName(buffer);
+		}
+		else if (counter == 3 && isComment == true)
+		{
+			tempComment.setCommentText(buffer);
+		}
+		else if (counter == 4 && isComment == true)
+		{
+			tempUpvote= turnCharArrayIntoNum(buffer, tempComment.getUpvote());
+			tempComment.setId(tempUpvote);
+		}
+		else if (counter == 4 && isComment == true)
+		{
+			tempDownvote = turnCharArrayIntoNum(buffer, tempComment.getDownvote());
+			tempComment.setDownvote(tempDownvote);
+
+			//ADD!!
+			++numberOfComments;
+			counter = 0;
+			isComment = false;
+		}
+
+		if (isComment == true)
+		{
+			++counter;
+		}
+	}
+
+	for (size_t i = 0; i < numberOfComments; ++i)
+	{
+		std::cout << i + 1 << ". " << topic.getQuestions()[currentIndex].getComments()[i].getCommentText() 
+			<< " {id: " << topic.getQuestions()[currentIndex].getComments()[i].getId() << "}\n";
+	}
+	std::cout << std::endl;
+}
+
+void openTopicCommands(char* command)
+{
+	std::cout << "Command list:\n"
+		<< "'post' - post question\n"
+		<< "'p_open' - open post(question)\n"
+		<< "'comment' - add comment\n"
+		<< "'quit' - exit the topic\n"
+		<< "'exit' = exit the network\n"
+		<< "\nEnter your command: ";
+
+	std::cin.get();
+	std::cin.getline(command, MAX_VALUES_SIZE);
+}
+
+void open(size_t currentIndex, Topic* selectedTopics, size_t numberOfTopics, MyString filename, bool& exit)
+{
+	MyString tempString = filename;
+	tempString += ".txt";
+	char* tempFilename = new char[tempString.length() + 1];
+	stringCopy(tempString, tempFilename);
 
 	std::ifstream readTopic(tempFilename);
 	if (!readTopic.is_open())
@@ -515,7 +659,108 @@ void open(MyString filename)
 		return;
 	}
 
-	std::cout << "FILE OPENED!!!!!\n";
+	std::cout << "\nWelcome to " << filename << "!\n\n";
+
+	readQuestionsFromFile(readTopic, selectedTopics[currentIndex]);
+
+	char* command = new char;
+	bool localExit = false;
+
+	while (localExit == false)
+	{
+		openTopicCommands(command);
+
+		if (stringComp(command, "post") == true)
+		{
+			Question question;
+			createQuestion(question, tempFilename);
+
+			std::ofstream postQuestion(tempFilename, std::ios::app);
+			if (!postQuestion.is_open())
+			{
+				std::cout << "\nERROR! The file could not be opened!\n";
+				exit = true;
+				return;
+			}
+
+			postQuestion << question;
+			std::cout << "\nYour question has been successfully posted!\n";
+
+			postQuestion.close();
+		}
+		else if (stringComp(command, "p_open") == true)
+		{
+			std::cout << "\n1. Open post(question) by supplied id\n"
+				<< "2. Open post(question) by supplied title\n"
+				<< "\nEnter the number of the command you want to use(1 or 2):";
+
+			int choice;
+			std::cin >> choice;
+
+			if (choice == 1)
+			{
+				bool find = false;
+				size_t tempId;
+				std::cout << "\nEnter the id of the post you want to check: ";
+				std::cin >> tempId;
+
+				for (size_t i = 0; i < numberOfTopics; ++i)
+				{
+					if (tempId == selectedTopics[i].getId())
+					{
+						find = true;
+					}
+				}
+
+				if (find == false)
+				{
+					std::cout << "\nWrong id!\n";
+				}
+
+				break;
+
+			}
+			else if (choice == 2)
+			{
+				bool find = false;
+				char* title = new char;
+				std::cout << "\nEnter the title of the topic you want to check: ";
+				std::cin.getline(title, MAX_VALUES_SIZE);
+
+				for (size_t i = 0; i < numberOfTopics; ++i)
+				{
+					if (stringComp(title, selectedTopics[i].getTopicName().c_str()))
+					{
+						find = true;
+					}
+				}
+
+				if (find == false)
+				{
+					std::cout << "\nWrong title!\n";
+				}
+
+				break;
+			}
+			else
+			{
+				std::cout << "ERROR! Wrong command!";
+			}
+		}
+		else if (stringComp(command, "comment") == true)
+		{
+
+		}
+		else if (stringComp(command, "quit") == true)
+		{
+			return;
+		}
+		else if (stringComp(command, "exit") == true)
+		{
+			exit = true;
+			return;
+		}
+	}
 
 	readTopic.close();
 }
@@ -563,6 +808,7 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 
 			if (choice == 1)
 			{
+				bool find = false;
 				int currentId;
 				std::cout << "Enter the id: ";
 				std::cin >> currentId;
@@ -571,31 +817,49 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 				{
 					if (currentId == selectedTopics[i].getId())
 					{
-						open(selectedTopics[i].getTopicName());
+						open(i, selectedTopics, numberOfTopics, selectedTopics[i].getTopicName(), exit);
+						find = true;
 					}
 				}
+
+				if (find == false)
+				{
+					std::cout << "\nWrong id!\n";
+					std::cin.get();
+				}
 			}
-			else if (choice == 2)
+			else if(choice == 2)
 			{
-				MyString title;
+				bool find = false;
 				char* currentTitle = new char;
 				std::cout << "Enter the full title: ";
 				std::cin.get();
 				std::cin.getline(currentTitle, MAX_VALUES_SIZE);
 
-				title = (currentTitle);
-
 				for (size_t i = 0; i < numberOfTopics; ++i)
 				{
-					if (title == selectedTopics[i].getTopicName())
+					if (currentTitle == selectedTopics[i].getTopicName().c_str())
 					{
-						open(selectedTopics[i].getTopicName());
+						open(i, selectedTopics, numberOfTopics, selectedTopics[i].getTopicName(), exit);
+						find = true;
 					}
 				}
+
+				if (find == false)
+				{
+					std::cout << "\nWrong title!\n";
+				}
+
+				if (exit == true)
+				{
+					return;
+				}
+
 			}
-			else
+		    else
 			{
-				std::cout << "Wrong command!";
+				std::cout << "\nWrong command!\n";
+				std::cin.get();
 			}
 		}
 		else if (stringComp(commandForTopics, "quit") == true)

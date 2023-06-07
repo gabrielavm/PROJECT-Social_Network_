@@ -26,6 +26,11 @@ void Question::setContent(const MyString& content)
 	}
 }
 
+void Question::setComment(const Comment& comment)
+{
+	comments.pushBack(comment);
+}
+
 void Question::setId(const size_t id)
 {
 	if (id < 0)
@@ -48,6 +53,11 @@ const MyString& Question::getContent() const
 	return content;
 }
 
+const Vector<Comment>& Question::getComments() const
+{
+	return comments;
+}
+
 const size_t Question::getId() const
 {
 	return id;
@@ -62,7 +72,8 @@ const void Question::printQuestionInfo() const
 
 std::ostream& operator<<(std::ostream& os, const Question& question)
 {
-	return os << question.id << std::endl
+	return os << "question:" << std::endl
+		<< question.id << std::endl
 		<< question.title << std::endl
 		<< question.content << std::endl;
 	//saving the id of the topic in the file first in order to know where the information

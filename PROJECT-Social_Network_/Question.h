@@ -1,10 +1,13 @@
 #pragma once
 #include "MyStringSso.h"
+#include "Comment.h"
+#include "Vector.hpp"
 
 class Question
 {
 	MyString title;
 	MyString content;
+	Vector<Comment> comments;
 	size_t id = 0;
 
 public:
@@ -12,15 +15,13 @@ public:
 	Question();
 
 	void setTitle(const MyString& title);
-
 	void setContent(const MyString& content);
-
+	void setComment(const Comment& comment);
 	void setId(const size_t id);
 
 	const MyString& getTitle() const;
-
 	const MyString& getContent() const;
-
+	const Vector<Comment>& getComments() const;
 	const size_t getId() const;
 
 	const void printQuestionInfo() const;

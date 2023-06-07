@@ -97,9 +97,12 @@ const void Comment::printCommentInfo() const
 
 std::ostream& operator<<(std::ostream& os, const Comment& comment)
 {
-	return os << comment.id << std::endl
+	return os << "comment:" << std::endl
+		<< comment.id << std::endl
 		<< comment.creatorName << std::endl
-		<< comment.commentText << std::endl;
+		<< comment.commentText << std::endl
+		<< comment.upvote << std::endl
+		<< comment.downvote << std::endl;
 	//saving the id of the topic in the file first in order to know where the information
 	//about the new topic begins
 }

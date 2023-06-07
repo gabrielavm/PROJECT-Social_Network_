@@ -152,7 +152,6 @@ MyString& MyString::operator+=(const MyString& other)
 	return *this;
 }
 
-
 char& MyString::operator[](size_t index)
 {
 	return isSso() ? ssoData[index] : _data[index];
