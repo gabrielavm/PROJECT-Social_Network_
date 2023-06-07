@@ -21,12 +21,6 @@ class Topic
 public:
 
 	Topic();
-	Topic(const Topic& other);
-	Topic& operator=(const Topic& other);
-	~Topic();
-
-	Topic(Topic&& other) noexcept;
-	Topic& operator=(Topic&& other) noexcept;
 
 	void setTopicName(const MyString& topicName);
 	void setCreatorName(const MyString& creatorName);
