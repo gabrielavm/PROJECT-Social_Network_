@@ -8,8 +8,10 @@ int main()
 {
 	User user;
 
-	Topic* topics = new Topic[MAX_TOPICS_NUMBER];
+	Vector<User> users;
+	readUsersFromFile(users);
 
+	Vector<Topic> topics;
 	readTopicsFromFile(topics);
 
 	std::cout << "SOCIAL NETWORK" << std::endl;
@@ -31,7 +33,7 @@ int main()
 			bool failRegistration = false;//Variable which will contain information about the registration condition
 			//if the variable is false that means the registration was successful, otherwise the registration failed
 
-			signUp(failRegistration);
+			signUp(failRegistration, users);
 
 			if (failRegistration == true)
 			{
@@ -48,14 +50,14 @@ int main()
 
 				if (stringComp(command, "login") == true)
 				{
-					logIn(user, exit);
+					logIn(users, user, exit);
 
 					if (exit == true)
 					{
 						return 0;
 					}
 
-					func(exit, logOut, command, user, topics);
+					func(exit, logOut, command, user, topics, users);
 
 					if (exit == true)
 					{
@@ -77,14 +79,14 @@ int main()
 		}
 		else if (stringComp(command, "login") == true)
 		{
-			logIn(user, exit);
+			logIn(users, user, exit);
 
 			if (exit == true)
 			{
 				return 0;
 			}
 
-			func(exit, logOut, command, user, topics);
+			func(exit, logOut, command, user, topics, users);
 
 			if (exit == true)
 			{

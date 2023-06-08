@@ -2,11 +2,11 @@
 user4
 Advanced git questions
 A place for asking complicated questions concerning git
-5
-user2
+2
+user5
 git and Github
 How to work with git and github
-9
+3
 user1
 git for beginners
-Information about git for beginners
+information about git for beginners

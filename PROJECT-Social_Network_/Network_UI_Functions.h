@@ -123,7 +123,7 @@ size_t getLinesCount(const char* FILENAME)
 	file.close();
 }
 
-void signUp(bool& failRegistration)
+void signUp(bool& failRegistration, Vector<User>& users)
 {
 	User user;
 
@@ -142,10 +142,11 @@ void signUp(bool& failRegistration)
 	std::cin.getline(password, MAX_VALUES_SIZE);
 	user.setPassword(password);
 
-	size_t id = getLinesCount(USERS_LIST_FILE);//the id for every user will be the row on which the
-	//exact user's info is saved. That way the id for each user will be unique and we will know the 
-	//position of this user in the file
-	user.setId(id);
+	//the id for every user will be the number of registered users (users.getSize() + 1).
+	//That way the id for each user will be unique and we will know the 
+	//position of this user in the file because the id relate to the line in the file
+	//in which the user's data is saved
+	user.setId(users.getSize() + 1);
 
 	user.setPoints(0);
 
@@ -180,96 +181,82 @@ size_t turnCharArrayIntoNum(const char* arr, size_t num)
 	return num;
 }
 
-//Helper function for 'findUser' func that set surname, id and points to the user when we log in our account
-//(when we check for existance of some user in the registered users list we have only first name and password,
-//so we have to set the other components of the user's info)
-void fillUserInfo(const char* buffer, User& user)
-{
-	size_t posCounter = 0;
-	std::stringstream stream(buffer);
-
-	while (!stream.eof())
-	{
-		char tempValue[BUFFER_SIZE] = { '\0' };
-
-		++posCounter;
-		stream.getline(tempValue, BUFFER_SIZE, ' ');
-		size_t tempId;
-		size_t tempPoints;
-
-		switch (posCounter)
-		{
-		case surnameIndex:
-			user.setSurname(tempValue);
-			break;
-		case idIndex:
-			tempId = turnCharArrayIntoNum(tempValue, user.getId());
-			user.setId(tempId);
-			break;
-		case pointsIndex:
-			tempPoints = turnCharArrayIntoNum(tempValue, user.getPoints());
-			user.setPoints(tempPoints);
-			break;
-		}
-	}
-}
-
-//Function that checks if some user is already registered
-bool findUser(std::ifstream& ifs, User& user)
+void readUsersFromFile(Vector<User>& users)
 {
 	User tempUser;
-	size_t lineNumber = 0;//The line with the user's info
 
-	while (!ifs.eof())
+	std::ifstream readUsers(USERS_LIST_FILE);
+	if (!readUsers.is_open())
 	{
-		char buffer[BUFFER_SIZE] = { '\0' };
-		ifs.getline(buffer, BUFFER_SIZE);
+		std::cout << "\nERROR! The file could not be opened!\n";
+		return;
+	}
 
-		++lineNumber;
-		size_t counter = 0;
-		bool correctName = false;
-		bool correctPassword = false;
+	while (!readUsers.eof())
+	{
+		size_t posCounter = 0;
+		char buffer[BUFFER_SIZE] = { '\0' };
+		readUsers.getline(buffer, BUFFER_SIZE);
 
 		std::stringstream stream(buffer);
 
 		while (!stream.eof())
 		{
-			char temp[BUFFER_SIZE] = { '\0' };
+			char tempValue[BUFFER_SIZE] = { '\0' };
 
-			++counter;
-			stream.getline(temp, BUFFER_SIZE, ' ');
+			++posCounter;
+			stream.getline(tempValue, BUFFER_SIZE, ' ');
+			size_t tempId;
+			size_t tempPoints;
 
-			if (counter == firstNameIndex)
+			switch (posCounter)
 			{
-				tempUser.setFirstName(temp);
-				if (tempUser.getFirstName() == user.getFirstName())
-				{
-					correctName = true;
-				}
-			}
-			else if (counter == passwordIndex)
-			{
-				tempUser.setPassword(temp);
-				if (tempUser.getPassword() == user.getPassword())
-				{
-					correctPassword = true;
-				}
-			}
+			case firstNameIndex:
+				tempUser.setFirstName(tempValue);
+				break;
 
-			if (correctName == true && correctPassword == true)//if the name and the password are correct
-				//at the same time (both belong to the same user) it means that this user exist in the file
-				// with the registered users
-			{
-				fillUserInfo(buffer, user);
-				return true;
+			case surnameIndex:
+				tempUser.setSurname(tempValue);
+				break;
+
+			case passwordIndex:
+				tempUser.setPassword(tempValue);
+				break;
+
+			case idIndex:
+				tempId = turnCharArrayIntoNum(tempValue, tempUser.getId());
+				tempUser.setId(tempId);
+				break;
+
+			case pointsIndex:
+				tempPoints = turnCharArrayIntoNum(tempValue, tempUser.getPoints());
+				tempUser.setPoints(tempPoints);
+				users.pushBack(tempUser);
+				posCounter = 0;
+				break;
 			}
+		}
+	}
+
+	readUsers.close();
+}
+
+bool findUser(Vector<User>& users, User& user)
+{
+	for (size_t i = 0; i < users.getSize(); ++i)
+	{
+		if (users[i].getFirstName() == user.getFirstName() ||
+			users[i].getPassword() == user.getPassword())
+		{
+			user = users[i];
+			return true;
 		}
 	}
 
 	return false;
 }
 
-void logIn(User& user, bool& exit)
+void logIn(Vector<User>& users, User& user, bool& exit)
 {
 	User tempUser;
 
@@ -291,7 +278,7 @@ void logIn(User& user, bool& exit)
 		return;
 	}
 
-	if (findUser(readFromFile, tempUser) == true)
+	if (findUser(users, tempUser) == true)
 	{
 		user = tempUser;
 		std::cout << "\nWelcome back, " << user.getFirstName() << " :) !\n";
@@ -306,7 +293,7 @@ void logIn(User& user, bool& exit)
 	readFromFile.close();
 }
 
-void logOut(User& user)
+void logOut(User& user, Vector<User>& users)
 {
 	std::cout << "\nGoodbye, " << user.getFirstName() << " " << user.getSurname() << "!\n";
 	user.setFirstName("");
@@ -314,6 +301,22 @@ void logOut(User& user)
 	user.setPassword("");
 	user.setId(0);
 	user.setPoints(0);
+
+	//During the program the number of the points of each user can be changed 
+	//so we have to save the information again in otder to save the new data
+	std::ofstream saveNewInfo(USERS_LIST_FILE, std::ios::trunc);
+	if (!saveNewInfo.is_open())
+	{
+		std::cout << "\nERROR! The file coud not be opened!\n";
+		return;
+	}
+
+	for (size_t i = 0; i < users.getSize(); ++i)
+	{
+		saveNewInfo << users[i];
+	}
+
+	saveNewInfo.close();
 }
 
 void logOutHelperFunction(bool logOut, char* command)
@@ -329,8 +332,10 @@ void logOutHelperFunction(bool logOut, char* command)
 	}
 }
 
-void readTopicsFromFile(Topic* topics)
+void readTopicsFromFile(Vector<Topic>& topics)
 {
+	Topic tempTopic;
+
 	std::ifstream topicFile(TOPICS_LIST_FILE);
 	if (!topicFile.is_open())
 	{
@@ -359,17 +364,18 @@ void readTopicsFromFile(Topic* topics)
 		switch (positionCount)
 		{
 		case 1:
-			tempId = turnCharArrayIntoNum(buffer, topics[topicsCount].getId());
-			topics[topicsCount].setId(tempId);
+			tempId = turnCharArrayIntoNum(buffer, tempTopic.getId());
+			tempTopic.setId(tempId);
 			break;
 		case 2:
-			topics[topicsCount].setCreatorName(buffer);
+			tempTopic.setCreatorName(buffer);
 			break;
 		case 3:
-			topics[topicsCount].setTopicName(buffer);
+			tempTopic.setTopicName(buffer);
 			break;
 		case 4:
-			topics[topicsCount].setTopicDescription(buffer);
+			tempTopic.setTopicDescription(buffer);
+			topics.pushBack(tempTopic);
 			++topicsCount;
 			positionCount = 0;
 			break;
@@ -379,7 +385,20 @@ void readTopicsFromFile(Topic* topics)
 	topicFile.close();
 }
 
-void createTopic(const User& user, Topic* topics)
+bool topicExistance(Vector<Topic>& topics, const MyString& topicName)
+{
+	for (size_t i = 0; i < topics.getSize(); ++i)
+	{
+		if (topics[i].getTopicName() == topicName)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void createTopic(const User& user, Vector<Topic>& topics)
 {
 	Topic topic;
 
@@ -393,48 +412,55 @@ void createTopic(const User& user, Topic* topics)
 	std::cin.getline(topicDescription, MAX_VALUES_SIZE);
 	topic.setTopicDescription(topicDescription);
 
-	size_t id = getLinesCount(TOPICS_LIST_FILE);//the id for each topic will be the row on which the
-	//exact topic's info is saved. That way the id for each topic will be unique and we will know the 
-	//position of this topic in the file
-
-	topic.setId(id);
+	//the id for each topic will be the number of the created topics by that time.
+	//That way the id for each topic will be unique.
+	topic.setId(topics.getSize() + 1);
 
 	topic.setCreatorName(user.getFirstName());
 
-	std::ofstream writeInFile(TOPICS_LIST_FILE, std::ios::_Nocreate | std::ios::app);
-	if (!writeInFile.is_open())
+	if (!topicExistance(topics, topic.getTopicName()))
 	{
-		std::cout << "ERROR! The file could not be opened!";
+		std::ofstream writeInFile(TOPICS_LIST_FILE, std::ios::_Nocreate | std::ios::app);
+		if (!writeInFile.is_open())
+		{
+			std::cout << "ERROR! The file could not be opened!";
+			return;
+		}
+
+		writeInFile << topic;
+
+		writeInFile.close();
+
+		MyString topicFileName(topic.getTopicName());
+		topicFileName += (".txt");//creating the name of the file for the topic 
+
+		char* tempTopicFileName = new char[topicFileName.length() + 1];
+		stringCopy(topicFileName, tempTopicFileName);
+
+		std::ofstream topicFile(tempTopicFileName);//Create a file for each topic
+		if (!topicFile.is_open())
+		{
+			std::cout << "ERROR! The file could not be created!";
+			return;
+		}
+
+		std::cout << "The topic is created successfully!\n";
+
+		//readTopicsFromFile(topics);
+
+		topicFile.close();
+
+		//We can create a new topic during the program and not only in the beginning 
+		//so we have to refill the collection of topics every time we create new topic
+		//in order to not skip any topic while using the other commands in the program
+		topics.clear();
+		readTopicsFromFile(topics);
+	}
+	else
+	{
+		std::cout << "\nThis topic already exists!\n";
 		return;
 	}
-
-	writeInFile << topic;
-
-	writeInFile.close();
-
-	MyString topicFileName(topic.getTopicName());
-	topicFileName += (".txt");//creating the name of the file for the topic 
-
-	char* tempTopicFileName = new char[topicFileName.length() + 1];
-	stringCopy(topicFileName, tempTopicFileName);
-
-	std::ofstream topicFile(tempTopicFileName);//Create a file for each topic
-	if (!topicFile.is_open())
-	{
-		std::cout << "ERROR! The file could not be created!";
-		return;
-	}
-
-	std::cout << "The topic is created successfully!\n";
-
-	delete[] topics;
-	size_t linesCount = getLinesCount(TOPICS_LIST_FILE);
-	size_t numberOfTopics = linesCount / 4;
-	topics = new Topic[numberOfTopics];
-
-	//readTopicsFromFile(topics);
-
-	topicFile.close();
 }
 
 void printCommandsList(char* command)
@@ -450,12 +476,12 @@ void printCommandsList(char* command)
 	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
-void search(char* keyword, const Topic* topics, Topic* selectedTopics, const size_t numberOfTopics, bool& goBack)
+void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics, bool& goBack)
 {
 	size_t countOfSelectedTopics = 0;//counter for the added topics in 'selectedTopics' array of class Topic
 	//when this counter is equal to zero that means that there is no topic that include the keyword 
 
-	for (size_t i = 0; i < numberOfTopics; ++i)
+	for (size_t i = 0; i < topics.getSize(); ++i)
 	{
 		char* tempKeyword = new char[topics[i].getTopicName().length()];
 		std::stringstream stream(topics[i].getTopicName().c_str());
@@ -466,7 +492,7 @@ void search(char* keyword, const Topic* topics, Topic* selectedTopics, const siz
 
 			if (stringComp(tempKeyword, keyword) == true)
 			{
-				selectedTopics[countOfSelectedTopics] = topics[i];
+				selectedTopics.pushBack(topics[i]);
 				++countOfSelectedTopics;
 				break;//brake in order not to continue check the other words of the exact 
 				//topic name after finding the keyword
@@ -571,6 +597,7 @@ void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
 void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentIndex)
 {
 	Comment tempComment;
+	Question tempQuestion;
 	size_t counter = 0;
 	bool isComment = false;
 	size_t tempId;
@@ -603,15 +630,16 @@ void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentInd
 		}
 		else if (counter == 4 && isComment == true)
 		{
-			tempUpvote= turnCharArrayIntoNum(buffer, tempComment.getUpvote());
+			tempUpvote = turnCharArrayIntoNum(buffer, tempComment.getUpvote());
 			tempComment.setId(tempUpvote);
 		}
 		else if (counter == 4 && isComment == true)
 		{
 			tempDownvote = turnCharArrayIntoNum(buffer, tempComment.getDownvote());
 			tempComment.setDownvote(tempDownvote);
+			tempQuestion.setComment(tempComment);
+			topic.setQuestion(tempQuestion);
 
-			//ADD!!
 			++numberOfComments;
 			counter = 0;
 			isComment = false;
@@ -625,7 +653,7 @@ void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentInd
 
 	for (size_t i = 0; i < numberOfComments; ++i)
 	{
-		std::cout << i + 1 << ". " << topic.getQuestions()[currentIndex].getComments()[i].getCommentText() 
+		std::cout << i + 1 << ". " << topic.getQuestions()[currentIndex].getComments()[i].getCommentText()
 			<< " {id: " << topic.getQuestions()[currentIndex].getComments()[i].getId() << "}\n";
 	}
 	std::cout << std::endl;
@@ -645,7 +673,7 @@ void openTopicCommands(char* command)
 	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
-void open(size_t currentIndex, Topic* selectedTopics, size_t numberOfTopics, MyString filename, bool& exit)
+void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
 {
 	MyString tempString = filename;
 	tempString += ".txt";
@@ -704,7 +732,7 @@ void open(size_t currentIndex, Topic* selectedTopics, size_t numberOfTopics, MyS
 				std::cout << "\nEnter the id of the post you want to check: ";
 				std::cin >> tempId;
 
-				for (size_t i = 0; i < numberOfTopics; ++i)
+				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{
 					if (tempId == selectedTopics[i].getId())
 					{
@@ -727,7 +755,7 @@ void open(size_t currentIndex, Topic* selectedTopics, size_t numberOfTopics, MyS
 				std::cout << "\nEnter the title of the topic you want to check: ";
 				std::cin.getline(title, MAX_VALUES_SIZE);
 
-				for (size_t i = 0; i < numberOfTopics; ++i)
+				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{
 					if (stringComp(title, selectedTopics[i].getTopicName().c_str()))
 					{
@@ -765,7 +793,7 @@ void open(size_t currentIndex, Topic* selectedTopics, size_t numberOfTopics, MyS
 	readTopic.close();
 }
 
-void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t numberOfTopics, bool& goBack, bool& exit)
+void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
 {
 	bool localExit = false;
 
@@ -781,7 +809,7 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 			size_t id;
 			std::cin >> id;
 
-			for (size_t i = 0; i < numberOfTopics; ++i)
+			for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 			{
 				if (id == selectedTopics[i].getId())
 				{
@@ -813,11 +841,11 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 				std::cout << "Enter the id: ";
 				std::cin >> currentId;
 
-				for (size_t i = 0; i < numberOfTopics; ++i)
+				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{
 					if (currentId == selectedTopics[i].getId())
 					{
-						open(i, selectedTopics, numberOfTopics, selectedTopics[i].getTopicName(), exit);
+						open(i, selectedTopics, selectedTopics[i].getTopicName(), exit);
 						find = true;
 					}
 				}
@@ -828,7 +856,7 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 					std::cin.get();
 				}
 			}
-			else if(choice == 2)
+			else if (choice == 2)
 			{
 				bool find = false;
 				char* currentTitle = new char;
@@ -836,11 +864,11 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 				std::cin.get();
 				std::cin.getline(currentTitle, MAX_VALUES_SIZE);
 
-				for (size_t i = 0; i < numberOfTopics; ++i)
+				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{
 					if (currentTitle == selectedTopics[i].getTopicName().c_str())
 					{
-						open(i, selectedTopics, numberOfTopics, selectedTopics[i].getTopicName(), exit);
+						open(i, selectedTopics, selectedTopics[i].getTopicName(), exit);
 						find = true;
 					}
 				}
@@ -856,7 +884,7 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 				}
 
 			}
-		    else
+			else
 			{
 				std::cout << "\nWrong command!\n";
 				std::cin.get();
@@ -877,10 +905,9 @@ void commandsForTopics(char* commandForTopics, Topic* selectedTopics, size_t num
 	}
 }
 
-void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
+void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& topics, Vector<User>& users)
 {
-	size_t numberOfTopics = getLinesCount(TOPICS_LIST_FILE) / 4;
-	Topic* selectedTopics = new Topic[numberOfTopics];
+	Vector<Topic> selectedTopics;
 	char* commandForTopics = new char;
 
 	printCommandsList(command);
@@ -891,6 +918,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 	{
 		if (stringComp(command, "create") == true)
 		{
+			size_t id = topics.getSize() + 1;
 			createTopic(user, topics);
 			printCommandsList(command);
 		}
@@ -906,7 +934,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 			std::cout << "\nEnter key word: ";
 			char* keyWord = new char;
 			std::cin.getline(keyWord, MAX_VALUES_SIZE);
-			search(keyWord, topics, selectedTopics, numberOfTopics, goBack);
+			search(keyWord, topics, selectedTopics, goBack);
 
 			if (goBack == true)
 			{
@@ -914,7 +942,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 			}
 			else
 			{
-				commandsForTopics(commandForTopics, selectedTopics, numberOfTopics, goBack, exit);
+				commandsForTopics(commandForTopics, selectedTopics, goBack, exit);
 
 				if (goBack == true)
 				{
@@ -929,7 +957,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Topic* topics)
 		}
 		else if (stringComp(command, "logout") == true)
 		{
-			logOut(user);
+			logOut(user, users);
 			logout = true;
 			return;
 		}
