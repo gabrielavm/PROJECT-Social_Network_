@@ -1,5 +1,6 @@
 #pragma once
 
+//Stick with the following vector implementation
 //Github https://github.com/plamena-ilieva
 
 #include <iostream>
@@ -108,6 +109,12 @@ template <typename T>
 Vector<T>::Vector(const Vector<T>& other) 
 {
     copyFrom(other);
+}
+
+template <typename T>
+Vector<T>::Vector(Vector<T>&& other)
+{
+    moveFrom(std::move(other));
 }
 
 template <typename T>
