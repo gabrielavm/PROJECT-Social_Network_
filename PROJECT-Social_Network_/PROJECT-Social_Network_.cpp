@@ -37,15 +37,18 @@ int main()
 
 			if (failRegistration == true)
 			{
-				std::cout << "ERROR! Registration failed!\nSome of the user's data was not entered!";
+				std::cout << "ERROR! Registration failed!"
+					<< "Some of the user's data was not entered!";
 				return 0;
 			}
 			else
 			{
-				std::cout << std::endl << "Log in your account or exit! \n\n";
-				std::cout << "Command list: \n" << "'exit' - exit the network \n" << "'login' - log in \n";
+				std::cout << std::endl << "Log in your account or exit!" << std::endl << std::endl;
+				std::cout << "Command list: " << std::endl 
+					<< "'exit' - exit the network" << std::endl 
+					<< "'login' - log in" << std::endl;
 
-				std::cout << "\nEnter command: ";
+				std::cout << std::endl << "Enter command : ";
 				std::cin.getline(command, MAX_VALUES_SIZE);
 
 				if (stringComp(command, "login") == true)
@@ -116,6 +119,8 @@ int main()
 			}
 		}
 	}
+
+	delete command;
 
 	return 0;
 }

@@ -6,10 +6,10 @@
 
 class Topic
 {
+	Vector<Question> questions;
 	MyString topicName;
 	MyString creatorName;
 	MyString topicDescription;
-	Vector<Question> questions;
 	size_t id = 0;
 
 public:

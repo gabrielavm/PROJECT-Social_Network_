@@ -89,7 +89,7 @@ const size_t Comment::getId() const
 
 const void Comment::printCommentInfo() const
 {
-	std::cout << "\nComment: " << this->commentText << std::endl
+	std::cout << std::endl << "Comment: " << this->commentText << std::endl
 		<< "By: " << this->creatorName << std::endl
 		<< "downvote: " << this->downvote << " | " << "unvote: " << this->upvote << std::endl
 		<< "ID: " << this->id << std::endl;

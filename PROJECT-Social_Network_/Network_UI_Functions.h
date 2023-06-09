@@ -128,17 +128,17 @@ void signUp(bool& failRegistration, Vector<User>& users)
 	User user;
 
 	std::cout << "Enter your first name: ";
-	char* firstName = new char;
+	char* firstName = new char();
 	std::cin.getline(firstName, MAX_VALUES_SIZE);
 	user.setFirstName(firstName);
 
 	std::cout << "Enter your surname: ";
-	char* surname = new char;
+	char* surname = new char();
 	std::cin.getline(surname, MAX_VALUES_SIZE);
 	user.setSurname(surname);
 
 	std::cout << "Enter your password: ";
-	char* password = new char;
+	char* password = new char();
 	std::cin.getline(password, MAX_VALUES_SIZE);
 	user.setPassword(password);
 
@@ -245,7 +245,7 @@ bool findUser(Vector<User>& users, User& user)
 {
 	for (size_t i = 0; i < users.getSize(); ++i)
 	{
-		if (users[i].getFirstName() == user.getFirstName() ||
+		if (users[i].getFirstName() == user.getFirstName() &&
 			users[i].getPassword() == user.getPassword())
 		{
 			user = users[i];
@@ -258,6 +258,9 @@ bool findUser(Vector<User>& users, User& user)
 
 void logIn(Vector<User>& users, User& user, bool& exit)
 {
+	users.clear();
+	readUsersFromFile(users);
+
 	User tempUser;
 
 	std::cout << "Enter your name: ";
@@ -402,12 +405,12 @@ void createTopic(const User& user, Vector<Topic>& topics)
 {
 	Topic topic;
 
-	char* topicName = new char;
+	char* topicName = new char();
 	std::cout << "Enter the name of the topic you want to create: ";
 	std::cin.getline(topicName, MAX_VALUES_SIZE);
 	topic.setTopicName(topicName);
 
-	char* topicDescription = new char;
+	char* topicDescription = new char();
 	std::cout << "Enter the description of the topic: ";
 	std::cin.getline(topicDescription, MAX_VALUES_SIZE);
 	topic.setTopicDescription(topicDescription);
@@ -481,6 +484,9 @@ void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics,
 	size_t countOfSelectedTopics = 0;//counter for the added topics in 'selectedTopics' array of class Topic
 	//when this counter is equal to zero that means that there is no topic that include the keyword 
 
+	selectedTopics.clear();//clearing the selectedTopics collection in case it is not the first time 
+	//we want to search for topics since the beginning of the program
+
 	for (size_t i = 0; i < topics.getSize(); ++i)
 	{
 		char* tempKeyword = new char[topics[i].getTopicName().length()];
@@ -531,12 +537,12 @@ void commandsListForTopics(char* commandForTopics)
 
 void createQuestion(Question& question, char* filename)
 {
-	char* askQuestion = new char;
+	char* askQuestion = new char();
 	std::cout << "\nEnter your question: ";
 	std::cin.getline(askQuestion, MAX_VALUES_SIZE);
 	question.setTitle(askQuestion);
 
-	char* content = new char;
+	char* content = new char();
 	std::cout << "\nEnter the description of the question: ";
 	std::cin.getline(content, MAX_VALUES_SIZE);
 	question.setContent(content);
@@ -668,9 +674,6 @@ void openTopicCommands(char* command)
 		<< "'quit' - exit the topic\n"
 		<< "'exit' = exit the network\n"
 		<< "\nEnter your command: ";
-
-	std::cin.get();
-	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
 void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
@@ -687,16 +690,17 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 		return;
 	}
 
-	std::cout << "\nWelcome to " << filename << "!\n\n";
+	std::cout << "\nWelcome to '" << filename << "'!\n\n";
 
 	readQuestionsFromFile(readTopic, selectedTopics[currentIndex]);
 
-	char* command = new char;
+	char* command = new char();
 	bool localExit = false;
 
 	while (localExit == false)
 	{
 		openTopicCommands(command);
+		std::cin.getline(command, MAX_VALUES_SIZE);
 
 		if (stringComp(command, "post") == true)
 		{
@@ -751,7 +755,7 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 			else if (choice == 2)
 			{
 				bool find = false;
-				char* title = new char;
+				char* title = new char();
 				std::cout << "\nEnter the title of the topic you want to check: ";
 				std::cin.getline(title, MAX_VALUES_SIZE);
 
@@ -774,6 +778,8 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 			{
 				std::cout << "ERROR! Wrong command!";
 			}
+
+			std::cin.get();
 		}
 		else if (stringComp(command, "comment") == true)
 		{
@@ -859,14 +865,14 @@ void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bo
 			else if (choice == 2)
 			{
 				bool find = false;
-				char* currentTitle = new char;
+				char* currentTitle = new char();
 				std::cout << "Enter the full title: ";
 				std::cin.get();
 				std::cin.getline(currentTitle, MAX_VALUES_SIZE);
 
 				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{
-					if (currentTitle == selectedTopics[i].getTopicName().c_str())
+					if (stringComp(currentTitle, selectedTopics[i].getTopicName().c_str()))
 					{
 						open(i, selectedTopics, selectedTopics[i].getTopicName(), exit);
 						find = true;
@@ -908,7 +914,7 @@ void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bo
 void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& topics, Vector<User>& users)
 {
 	Vector<Topic> selectedTopics;
-	char* commandForTopics = new char;
+	char* commandForTopics = new char();
 
 	printCommandsList(command);
 
@@ -932,7 +938,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& to
 			bool goBack = false;
 
 			std::cout << "\nEnter key word: ";
-			char* keyWord = new char;
+			char* keyWord = new char();
 			std::cin.getline(keyWord, MAX_VALUES_SIZE);
 			search(keyWord, topics, selectedTopics, goBack);
 

@@ -89,7 +89,7 @@ const size_t User::getPoints() const
 
 const void User::printUsersInfo() const
 {
-	std::cout << "\nYour data as a user is:\n"
+	std::cout << std::endl << "Your data as a user is:" << std::endl
 		<< "First name: " << this->firstName << std::endl
 		<< "Surname: " << this->surname << std::endl
 		<< "ID: " << this->id << std::endl
@@ -98,9 +98,9 @@ const void User::printUsersInfo() const
 
 std::ostream& operator<<(std::ostream& os, const User& user)
 {
-	return os << user.firstName << " "
-		<< user.surname << " "
-		<< user.password << " "
-		<< user.id << " "
+	return os << user.firstName << ' '
+		<< user.surname << ' '
+		<< user.password << ' '
+		<< user.id << ' '
 		<< user.points << std::endl;
 }

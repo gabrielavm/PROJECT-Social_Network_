@@ -65,7 +65,7 @@ const size_t Question::getId() const
 
 const void Question::printQuestionInfo() const
 {
-	std::cout << "\nTitle of the question: " << this->title << std::endl
+	std::cout << std::endl << "Title of the question: " << this->title << std::endl
 		<< "Content of the question: " << this->content << std::endl
 		<< "ID: " << this->id << std::endl;
 }

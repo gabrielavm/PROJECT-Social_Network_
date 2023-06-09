@@ -5,9 +5,9 @@
 
 class Question
 {
+	Vector<Comment> comments;
 	MyString title;
 	MyString content;
-	Vector<Comment> comments;
 	size_t id = 0;
 
 public:

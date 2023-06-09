@@ -15,15 +15,15 @@ class Vector
 
     void free();
     void copyFrom(const Vector<T>& other);
-    void moveFrom(Vector&& other);
+    void moveFrom(Vector&& other) noexcept;
     void resize();
 
 public:
     Vector();
     Vector(const Vector<T>& other);
-    Vector(Vector<T>&& other);
+    Vector(Vector<T>&& other) noexcept;
     Vector<T>& operator=(const Vector<T>& other);
-    Vector<T>& operator=(Vector&& other);
+    Vector<T>& operator=(Vector&& other) noexcept;
     ~Vector();
 
     size_t getSize() const;
@@ -31,7 +31,7 @@ public:
     void setCapacity(size_t newCapacity);
 
     void pushBack(const T& element);
-    void pushBack(T&& element);
+    void pushBack(T&& element) noexcept;
 
     T& operator[](size_t index);
     const T& operator[](size_t index) const;
@@ -61,7 +61,7 @@ void Vector<T>::copyFrom(const Vector<T>& other)
 }
 
 template <typename T>
-void Vector<T>::moveFrom(Vector&& other)
+void Vector<T>::moveFrom(Vector&& other) noexcept
 {
     data = other.data;
     size = other.size;
@@ -112,7 +112,7 @@ Vector<T>::Vector(const Vector<T>& other)
 }
 
 template <typename T>
-Vector<T>::Vector(Vector<T>&& other)
+Vector<T>::Vector(Vector<T>&& other) noexcept
 {
     moveFrom(std::move(other));
 }
@@ -129,7 +129,7 @@ Vector<T>& Vector<T>::operator=(const Vector<T>& other)
 }
 
 template <typename T>
-Vector<T>& Vector<T>::operator=(Vector&& other)
+Vector<T>& Vector<T>::operator=(Vector&& other) noexcept
 {
     if (this != &other)
     {
@@ -170,7 +170,7 @@ void Vector<T>::pushBack(const T& element)
 }
 
 template <typename T>
-void Vector<T>::pushBack(T&& element)
+void Vector<T>::pushBack(T&& element) noexcept
 {
     if (size == capacity)
     {
