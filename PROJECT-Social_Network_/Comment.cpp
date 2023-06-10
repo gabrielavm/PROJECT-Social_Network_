@@ -62,6 +62,18 @@ void Comment::setId(const size_t id)
 	}
 }
 
+void Comment::setQId(const size_t qId)
+{
+	if (qId < 0)
+	{
+		return;
+	}
+	else
+	{
+		this->qId = qId;
+	}
+}
+
 const MyString& Comment::getCreatorName() const
 {
 	return creatorName;
@@ -87,18 +99,23 @@ const size_t Comment::getId() const
 	return id;
 }
 
+const size_t Comment::getQId() const
+{
+	return qId;
+}
+
 const void Comment::printCommentInfo() const
 {
 	std::cout << std::endl << "Comment: " << this->commentText << std::endl
 		<< "By: " << this->creatorName << std::endl
+		<< "Comment about: {id: " << this->qId << "}" << std::endl
 		<< "downvote: " << this->downvote << " | " << "unvote: " << this->upvote << std::endl
 		<< "ID: " << this->id << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, const Comment& comment)
 {
-	return os << "comment:" << std::endl
-		<< comment.id << std::endl
+	return os << comment.id << std::endl
 		<< comment.creatorName << std::endl
 		<< comment.commentText << std::endl
 		<< comment.upvote << std::endl

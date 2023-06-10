@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 
+const int MAX_VALUES_SIZE = 1024;
+
 void logOutHelperFunction(bool logOut, char* command)
 {
 	if (logOut == true)
@@ -45,12 +47,24 @@ void openTopicCommands(char* command)
 		<< "'post' - post question\n"
 		<< "'p_open' - open post(question)\n"
 		<< "'quit' - exit the topic\n"
-		<< "'exit' = exit the network\n"
+		<< "'exit' - exit the network\n"
 		<< "\nEnter your command: ";
 }
 
 void p_openCommandsList()
 {
-	std::cout << "Command list: " << std::endl
-		<< "'comment' - post a comment to this question" << std::endl;
+	std::cout << std::endl << "Command list: " << std::endl
+		<< "'comment' - post a comment to this question" << std::endl
+		<< "'comments' - see all the comments for this topic" << std::endl
+		<< "'p_close' - close the current post" << std::endl;
+}
+
+void commentsCommandsList(char* command)
+{
+	std::cout << std::endl << "Commands list:" << std::endl
+		<< "1. 'upvote'" << std::endl
+		<< "2. 'downvote'" << std::endl
+		<< std::endl << "Enter your command: ";
+
+	std::cin.getline(command, MAX_VALUES_SIZE);
 }

@@ -141,6 +141,7 @@
     <ClInclude Include="MyStringSso.h" />
     <ClInclude Include="Network_UI_Functions.h" />
     <ClInclude Include="Question.h" />
+    <ClInclude Include="ReadFromFileFunctions.h" />
     <ClInclude Include="Topic.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Vector.hpp" />

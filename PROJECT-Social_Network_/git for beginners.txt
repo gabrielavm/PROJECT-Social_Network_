@@ -14,3 +14,24 @@ question:
 13
 How to work with git?
 <question description>
+comment:
+9
+0
+user9
+/....../
+0
+0
+comment:
+9
+0
+user9
+/Git is for source code management/
+0
+0
+comment:
+1
+0
+user5
+/It is a version of the grep command/
+0
+0

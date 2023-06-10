@@ -6,7 +6,6 @@
 #include "Vector.hpp"
 
 const int SIZE = 100;
-const int MAX_VALUES_SIZE = 1024;
 const int MAX_TOPICS_NUMBER = 500;
 const char USERS_LIST_FILE[] = "UsersList.txt";
 const char TOPICS_LIST_FILE[] = "TopicsList.txt";

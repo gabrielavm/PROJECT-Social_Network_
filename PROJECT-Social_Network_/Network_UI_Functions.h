@@ -1,7 +1,7 @@
 #pragma once
 #include <iostream>
-#include "HelperFunctions.h"
 #include "CommandListsFunctions.h"
+#include "ReadFromFileFunctions.h"
 
 void signUp(bool& failRegistration, Vector<User>& users)
 {
@@ -51,66 +51,6 @@ void signUp(bool& failRegistration, Vector<User>& users)
 	std::cout << std::endl << "Successful registration!" << std::endl;
 
 	inputUserInFile.close();
-}
-
-void readUsersFromFile(Vector<User>& users)
-{
-	User tempUser;
-
-	std::ifstream readUsers(USERS_LIST_FILE);
-	if (!readUsers.is_open())
-	{
-		std::cout << "\nERROR! The file could not be opened!\n";
-		return;
-	}
-
-	while (!readUsers.eof())
-	{
-		size_t posCounter = 0;
-		char buffer[BUFFER_SIZE] = { '\0' };
-		readUsers.getline(buffer, BUFFER_SIZE);
-
-		std::stringstream stream(buffer);
-
-		while (!stream.eof())
-		{
-			char tempValue[BUFFER_SIZE] = { '\0' };
-
-			++posCounter;
-			stream.getline(tempValue, BUFFER_SIZE, ' ');
-			size_t tempId;
-			size_t tempPoints;
-
-			switch (posCounter)
-			{
-			case firstNameIndex:
-				tempUser.setFirstName(tempValue);
-				break;
-
-			case surnameIndex:
-				tempUser.setSurname(tempValue);
-				break;
-
-			case passwordIndex:
-				tempUser.setPassword(tempValue);
-				break;
-
-			case idIndex:
-				tempId = turnCharArrayIntoNum(tempValue, tempUser.getId());
-				tempUser.setId(tempId);
-				break;
-
-			case pointsIndex:
-				tempPoints = turnCharArrayIntoNum(tempValue, tempUser.getPoints());
-				tempUser.setPoints(tempPoints);
-				users.pushBack(tempUser);
-				posCounter = 0;
-				break;
-			}
-		}
-	}
-
-	readUsers.close();
 }
 
 bool findUser(Vector<User>& users, User& user)
@@ -168,14 +108,15 @@ void logIn(Vector<User>& users, User& user, bool& exit)
 	readFromFile.close();
 }
 
-void logOut(User& user, Vector<User>& users)
+void saveUserInfo(User& user, Vector<User>& users)
 {
-	std::cout << "\nGoodbye, " << user.getFirstName() << " " << user.getSurname() << "!\n";
-	user.setFirstName("");
-	user.setSurname("");
-	user.setPassword("");
-	user.setId(0);
-	user.setPoints(0);
+	for (size_t i = 0; i < users.getSize(); ++i)
+	{
+		if (user.getId() == users[i].getId())
+		{
+			users[i].setPoints(user.getPoints());
+		}
+	}
 
 	//During the program the number of the points of each user can be changed 
 	//so we have to save the information again in otder to save the new data
@@ -194,57 +135,16 @@ void logOut(User& user, Vector<User>& users)
 	saveNewInfo.close();
 }
 
-void readTopicsFromFile(Vector<Topic>& topics)
+void logOut(User& user, Vector<User>& users)
 {
-	Topic tempTopic;
+	saveUserInfo(user, users);
 
-	std::ifstream topicFile(TOPICS_LIST_FILE);
-	if (!topicFile.is_open())
-	{
-		std::cout << "ERROR! The file could not be opened!";
-		return;
-	}
-
-	//There is one file with information of all topics 
-	//each 4 lines correspond to only one topic
-	//For example the first line is the id of the first topic, the second line is the 
-	//creator's name of the first topic, the third line is the name of the first topic and the
-	//fourth line is the description of the first topic.
-	//The next 4 lines are for the second topic and so on.
-	//That is the reason why we have 'positionCount' variable which counts the lines,
-	//so we know what component of the topic info to fill.
-	size_t positionCount = 0;
-	size_t topicsCount = 0;//increases when we have stored all the info for one topic
-
-	while (!topicFile.eof())
-	{
-		char buffer[BUFFER_SIZE] = { '\0' };
-		topicFile.getline(buffer, BUFFER_SIZE);
-		++positionCount;
-		size_t tempId;
-
-		switch (positionCount)
-		{
-		case 1:
-			tempId = turnCharArrayIntoNum(buffer, tempTopic.getId());
-			tempTopic.setId(tempId);
-			break;
-		case 2:
-			tempTopic.setCreatorName(buffer);
-			break;
-		case 3:
-			tempTopic.setTopicName(buffer);
-			break;
-		case 4:
-			tempTopic.setTopicDescription(buffer);
-			topics.pushBack(tempTopic);
-			++topicsCount;
-			positionCount = 0;
-			break;
-		}
-	}
-
-	topicFile.close();
+	std::cout << "\nGoodbye, " << user.getFirstName() << " " << user.getSurname() << "!\n";
+	user.setFirstName("");
+	user.setSurname("");
+	user.setPassword("");
+	user.setId(0);
+	user.setPoints(0);
 }
 
 bool topicExistance(Vector<Topic>& topics, const MyString& topicName)
@@ -381,123 +281,7 @@ void createQuestion(Question& question, char* filename)
 	std::cin.getline(content, MAX_VALUES_SIZE);
 	question.setContent(content);
 
-	question.setId(getLinesCount(filename));//
-}
-
-void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
-{
-	Question tempQuestion;
-	size_t counter = 0;
-	bool isQuestion = false;
-	size_t tempId;
-	size_t numberOfQuestions = 0;
-
-	while (!stream.eof())
-	{
-		char buffer[BUFFER_SIZE] = { '\0' };
-		stream.getline(buffer, BUFFER_SIZE);
-
-		if (stringComp(buffer, "question:"))
-		{
-			isQuestion = true;
-		}
-
-		if (counter == 1 && isQuestion == true)
-		{
-			tempId = turnCharArrayIntoNum(buffer, tempQuestion.getId());
-			tempQuestion.setId(tempId);
-		}
-		else if (counter == 2 && isQuestion == true)
-		{
-			tempQuestion.setTitle(buffer);
-		}
-		else if (counter == 3 && isQuestion == true)
-		{
-			tempQuestion.setContent(buffer);
-			topic.setQuestion(tempQuestion);
-			++numberOfQuestions;
-			counter = 0;
-			isQuestion = false;
-		}
-
-		if (isQuestion == true)
-		{
-			++counter;
-		}
-	}
-
-	for (size_t i = 0; i < numberOfQuestions; ++i)
-	{
-		std::cout << i + 1 << ". " << topic.getQuestions()[i].getTitle() << " {id: "
-			<< topic.getQuestions()[i].getId() << "}\n";
-	}
-	std::cout << std::endl;
-}
-
-void readCommentsFromFile(char* filename, Topic& topic, size_t currentIndex)
-{
-	Comment tempComment;
-	Question tempQuestion;
-	size_t counter = 0;
-	bool isComment = false;
-	size_t tempId;
-	size_t tempUpvote;
-	size_t tempDownvote;
-	size_t numberOfComments = 0;
-
-	std::ifstream stream(filename);
-	if (!stream.is_open())
-	{
-		std::cout << std::endl << "ERROR! The file could nt be opened!" << std::endl;
-	}
-
-	while (!stream.eof())
-	{
-		char buffer[BUFFER_SIZE] = { '\0' };
-		stream.getline(buffer, BUFFER_SIZE);
-
-		if (stringComp(buffer, "comment:"))
-		{
-			isComment = true;
-		}
-
-		if (counter == 1 && isComment == true)
-		{
-			tempId = turnCharArrayIntoNum(buffer, tempComment.getId());
-			tempComment.setId(tempId);
-		}
-		else if (counter == 2 && isComment == true)
-		{
-			tempComment.setCreatorName(buffer);
-		}
-		else if (counter == 3 && isComment == true)
-		{
-			tempComment.setCommentText(buffer);
-		}
-		else if (counter == 4 && isComment == true)
-		{
-			tempUpvote = turnCharArrayIntoNum(buffer, tempComment.getUpvote());
-			tempComment.setId(tempUpvote);
-		}
-		else if (counter == 5 && isComment == true)
-		{
-			tempDownvote = turnCharArrayIntoNum(buffer, tempComment.getDownvote());
-			tempComment.setDownvote(tempDownvote);
-			tempQuestion.setComment(tempComment);
-			topic.setQuestion(tempQuestion);
-
-			++numberOfComments;
-			counter = 0;
-			isComment = false;
-		}
-
-		if (isComment == true)
-		{
-			++counter;
-		}
-	}
-
-	stream.close();
+	question.setId(getLinesCount(filename));
 }
 
 void createComment(User& user, Question& question, Comment& comment)
@@ -513,6 +297,62 @@ void createComment(User& user, Question& question, Comment& comment)
 	comment.setId(question.getComments().getSize());
 }
 
+void upVote(bool& upvote, Vector<Comment>& commentsToPrint )
+{
+	std::cout << "Enter id :";
+	int id;
+	std::cin >> id;
+
+	if (upvote == true)
+	{
+		for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+		{
+			if (id == commentsToPrint[i].getId())
+			{
+				commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() - 1);
+				return;
+			}
+		}
+	}
+
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+	{
+		if (id == commentsToPrint[i].getId())
+		{
+			commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() + 1);
+			upvote = true;
+		}
+	}
+}
+
+void downVote(bool& downvote, Vector<Comment>& commentsToPrint)
+{
+	std::cout << "Enter id :";
+	int id;
+	std::cin >> id;
+
+	if (downvote == true)
+	{
+		for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+		{
+			if (id == commentsToPrint[i].getId())
+			{
+				commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() + 1);
+				return;
+			}
+		}
+	}
+
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+	{
+		if (id == commentsToPrint[i].getId())
+		{
+			commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() - 1);
+			downvote = true;
+		}
+	}
+}
+
 void p_open(char* filename, User& user, Question& question, Comment& comment, size_t currentIndex ,Vector<Topic>& topics)
 {
 	char command[SIZE];
@@ -523,7 +363,6 @@ void p_open(char* filename, User& user, Question& question, Comment& comment, si
 	{
 		p_openCommandsList();
 		std::cout << std::endl << "Enter the command you want to use:";
-		std::cin.get();
 		std::cin.getline(command, MAX_VALUES_SIZE);
 
 		if (stringComp(command, "comment") == true)
@@ -539,7 +378,7 @@ void p_open(char* filename, User& user, Question& question, Comment& comment, si
 				}
 			}
 
-			std::ofstream writeFile(filename, std::ios::trunc);
+			std::ofstream writeFile(filename, std::ios::app);
 			if (!writeFile.is_open())
 			{
 				std::cout << std::endl << filename << std::endl;
@@ -547,29 +386,69 @@ void p_open(char* filename, User& user, Question& question, Comment& comment, si
 				return;
 			}
 
-			for (size_t j = 0; j < topics[currentIndex].getQuestions().getSize(); ++j)
-			{
-				Question tempQ;
-				tempQ = topics[currentIndex].getQuestions()[j];
+			writeFile << "comment:" << std::endl << question.getId() << std::endl << comment;
+			std::cout << std::endl << "Your comment has been successfully posted!" << std::endl;
 
-				writeFile << tempQ;
-
-				for (size_t k = 0; k < tempQ.getComments().getSize(); ++k)
-				{
-					Comment tempC;
-					tempC = tempQ.getComments()[k];
-
-					writeFile << tempC;
-					std::cout << std::endl << "Your comment was successfully posted!" << std::endl;
-				}
-			}
+			user.setPoints(user.getPoints() + 1);//Every time we comment we gain points
 
 			writeFile.close();
+		}
+		else if (stringComp(command, "comments") == true)
+		{
+			Vector<Comment> commentsToPrint;
+
+			readCommentsFromFile(filename, commentsToPrint);
+
+			for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+			{
+				commentsToPrint[i].printCommentInfo();
+			}
+
+			char command[SIZE];
+			commentsCommandsList(command);
+
+			bool upvote = false;
+			bool downvote = false;
+
+			if (stringComp(command, "upvote") == true)
+			{
+				upVote(upvote, commentsToPrint);
+			}
+			else if (stringComp(command, "downvote") == true)
+			{
+				downVote(downvote, commentsToPrint);
+			}
+		}
+		else if(stringComp(command, "p_close") == true)
+		{
+			Vector<Comment> comments;
+
+			readCommentsFromFile(filename, comments);
+
+			std::ofstream file(filename, std::ios::trunc);
+			if (!file.is_open())
+			{
+				std::cout << std::endl << "ERROR! The file could not be opened!" << std::endl;
+			}
+
+			for (size_t i = 0; i < topics.getSize(); ++i)
+			{
+				file << topics[currentIndex].getQuestions()[i];
+			}
+
+			for (size_t j = 0; j < comments.getSize(); ++j)
+			{
+				file << "comment:" << std::endl << comments[j].getQId() << std::endl << comments[j];
+			}
+
+			file.close();
+
+			return;
 		}
 	}
 }
 
-void open(User& user, size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
+void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
 {
 	MyString tempString = filename;
 	tempString += ".txt";
@@ -646,13 +525,6 @@ void open(User& user, size_t currentIndex, Vector<Topic>& selectedTopics, MyStri
 					{
 						p_open(tempFilename, user, tempQuestions[i], currentComment, currentIndex, selectedTopics);
 
-						selectedTopics[currentIndex].printTopicInfo();
-						std::cout << std::endl;
-						tempQuestions[i].printQuestionInfo();
-						std::cout << std::endl;
-						currentComment.printCommentInfo();
-						
-						std::cout << std::endl << std::endl << "END" << std::endl;
 						find = true;
 					}
 				}
@@ -701,6 +573,8 @@ void open(User& user, size_t currentIndex, Vector<Topic>& selectedTopics, MyStri
 		}
 		else if (stringComp(command, "exit") == true)
 		{
+			saveUserInfo(user, users);
+
 			exit = true;
 			return;
 		}
@@ -709,7 +583,7 @@ void open(User& user, size_t currentIndex, Vector<Topic>& selectedTopics, MyStri
 	readTopic.close();
 }
 
-void commandsForTopics(User& user, char* commandForTopics, Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
+void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
 {
 	bool localExit = false;
 
@@ -761,7 +635,7 @@ void commandsForTopics(User& user, char* commandForTopics, Vector<Topic>& select
 				{
 					if (currentId == selectedTopics[i].getId())
 					{
-						open(user, i, selectedTopics, selectedTopics[i].getTopicName(), exit);
+						open(user, users, i, selectedTopics, selectedTopics[i].getTopicName(), exit);
 						find = true;
 					}
 				}
@@ -784,7 +658,7 @@ void commandsForTopics(User& user, char* commandForTopics, Vector<Topic>& select
 				{
 					if (stringComp(currentTitle, selectedTopics[i].getTopicName().c_str()))
 					{
-						open(user, i, selectedTopics, selectedTopics[i].getTopicName(), exit);
+						open(user, users, i, selectedTopics, selectedTopics[i].getTopicName(), exit);
 						find = true;
 					}
 				}
@@ -813,6 +687,7 @@ void commandsForTopics(User& user, char* commandForTopics, Vector<Topic>& select
 		}
 		else if (stringComp(commandForTopics, "exit") == true)
 		{
+			saveUserInfo(user, users);
 			exit = true;
 			return;
 		}
@@ -858,7 +733,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& to
 			}
 			else
 			{
-				commandsForTopics(user, commandForTopics, selectedTopics, goBack, exit);
+				commandsForTopics(user, users, commandForTopics, selectedTopics, goBack, exit);
 
 				if (goBack == true)
 				{
@@ -879,6 +754,8 @@ void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& to
 		}
 		else if (stringComp(command, "exit") == true)
 		{
+			saveUserInfo(user, users);
+
 			exit = true;
 			return;
 		}
