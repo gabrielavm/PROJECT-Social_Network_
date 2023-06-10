@@ -44,6 +44,17 @@ void Topic::setQuestion(const Question& question)
 	questions.pushBack(question);
 }
 
+void Topic::setQuestionAtIndex(size_t id, const Question& question)
+{
+	for (size_t i = 0; i < questions.getSize(); ++i)
+	{
+		if (questions[i].getId() == id)
+		{
+			questions.pushAt(question, i);
+		}
+	}
+}
+
 void Topic::setId(const size_t id)
 {
 	if (id < 0)

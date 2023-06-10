@@ -32,6 +32,8 @@ public:
 
     void pushBack(const T& element);
     void pushBack(T&& element) noexcept;
+    void pushAt(const T& element, const size_t index);
+    void pushAt(T&& element, const size_t index);
 
     T& operator[](size_t index);
     const T& operator[](size_t index) const;
@@ -179,6 +181,40 @@ void Vector<T>::pushBack(T&& element) noexcept
 
     size++;
     data[size - 1] = std::move(element);
+}
+
+template <typename T>
+void Vector<T>::pushAt(const T& element, const size_t index)
+{
+    if (size + 1 > capacity)
+    {
+        resize();
+    }
+
+    for (size_t i = size; i < index; i--)
+    {
+        data[i] = data[i - 1];
+    }
+
+    data[index] = element;
+    ++size;
+}
+
+template <typename T>
+void Vector<T>::pushAt(T&& element, const size_t index)
+{
+    if (size + 1 > capacity)
+    {
+        resize();
+    }
+
+    for (size_t i = size; i < index; i--)
+    {
+        data[i] = data[i - 1];
+    }
+
+    data[index] = std::move(element);
+    ++size;
 }
 
 template <typename T>

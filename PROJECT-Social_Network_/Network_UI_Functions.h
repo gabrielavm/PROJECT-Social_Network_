@@ -1,144 +1,24 @@
 #pragma once
-#include "User.h"
-#include "Topic.h"
-#include "MyStringSso.h"
-#include "Vector.hpp"
-
-const int MAX_VALUES_SIZE = 1024;
-const int MAX_TOPICS_NUMBER = 500;
-const char USERS_LIST_FILE[] = "UsersList.txt";
-const char TOPICS_LIST_FILE[] = "TopicsList.txt";
-
-//Variables that show where the exact value is saved in the file with the registered users
-//For example each time a user is being registered his info is being saved in the 
-// following sequence :  First name , Surname, Password, Id , Points
-static const int firstNameIndex = 1;
-static const int surnameIndex = 2;
-static const int passwordIndex = 3;
-static const int idIndex = 4;
-static const int pointsIndex = 5;
-
-//Helper function to find the length of string
-size_t stringLen(const char* string)
-{
-	size_t length = 0;
-
-	while (string[length] != '\0')
-	{
-		++length;
-	}
-
-	return length;
-}
-
-//Helper function that compares two strings
-bool stringComp(const char* firstStr, const char* secondStr)
-{
-	size_t firstStrLen = stringLen(firstStr);
-	size_t secondStrLen = stringLen(secondStr);
-
-	if (firstStrLen == secondStrLen)
-	{
-		int equal = 0;
-
-		for (size_t i = 0; i < firstStrLen; ++i)
-		{
-			if (firstStr[i] == secondStr[i])
-			{
-				++equal;
-			}
-		}
-
-		if (equal == firstStrLen)
-		{
-			return true;
-		}
-	}
-
-	return false;
-}
-
-void stringCopy(MyString& original, char* copy)
-{
-	for (int i = 0; i < original.length() + 1; ++i)
-	{
-		if (i != original.length())
-		{
-			copy[i] = original[i];
-		}
-		else
-		{
-			copy[i] = '\0';
-		}
-	}
-}
-
-//Using the 'getCharCountFromFile' and 'getLinesCount' functions that we implemented during lectures
-//github: Angeld55
-size_t getCharCountFromFile(std::ifstream& ifs, char ch)
-{
-	size_t currentPosition = ifs.tellg();
-	ifs.seekg(0, std::ios::beg);
-
-	if (!ifs.is_open())
-	{
-		return 0;
-	}
-
-	unsigned int count = 0;
-
-	while (true)
-	{
-		char current = ifs.get();
-
-		if (ifs.eof())
-		{
-			break;
-		}
-
-		if (current == ch)
-		{
-			count++;
-		}
-	}
-
-	ifs.clear();
-	ifs.seekg(currentPosition);
-
-	return count;
-}
-
-size_t getLinesCount(const char* FILENAME)
-{
-	std::ifstream file(FILENAME);
-
-	if (!file.is_open())
-	{
-		std::cout << "ERROR! The file could not be opened!";
-		return 0;
-	}
-
-	return getCharCountFromFile(file, '\n') + 1;
-
-	file.close();
-}
+#include <iostream>
+#include "HelperFunctions.h"
+#include "CommandListsFunctions.h"
 
 void signUp(bool& failRegistration, Vector<User>& users)
 {
 	User user;
 
 	std::cout << "Enter your first name: ";
-	char* firstName = new char();
+	char firstName[SIZE];
 	std::cin.getline(firstName, MAX_VALUES_SIZE);
 	user.setFirstName(firstName);
 
 	std::cout << "Enter your surname: ";
-	char* surname = new char();
+	char surname[SIZE];
 	std::cin.getline(surname, MAX_VALUES_SIZE);
 	user.setSurname(surname);
 
 	std::cout << "Enter your password: ";
-	char* password = new char();
+	char password[SIZE];
 	std::cin.getline(password, MAX_VALUES_SIZE);
 	user.setPassword(password);
 
@@ -171,14 +51,6 @@ void signUp(bool& failRegistration, Vector<User>& users)
 	std::cout << std::endl << "Successful registration!" << std::endl;
 
 	inputUserInFile.close();
-}
-
-size_t turnCharArrayIntoNum(const char* arr, size_t num)
-{
-	std::stringstream stream(arr);
-	stream >> num;
-
-	return num;
 }
 
 void readUsersFromFile(Vector<User>& users)
@@ -264,12 +136,12 @@ void logIn(Vector<User>& users, User& user, bool& exit)
 	User tempUser;
 
 	std::cout << "Enter your name: ";
-	char* firstName = new char;
+	char firstName[SIZE];
 	std::cin.getline(firstName, MAX_VALUES_SIZE);
 	tempUser.setFirstName(firstName);
 
 	std::cout << "Enter your password: ";
-	char* password = new char;
+	char password[SIZE];
 	std::cin.getline(password, MAX_VALUES_SIZE);
 	tempUser.setPassword(password);
 
@@ -320,19 +192,6 @@ void logOut(User& user, Vector<User>& users)
 	}
 
 	saveNewInfo.close();
-}
-
-void logOutHelperFunction(bool logOut, char* command)
-{
-	if (logOut == true)
-	{
-		std::cout << std::endl << "\nSign up, log in your account or exit! \n\n";
-		std::cout << "Command list: \n" << "'signup' - sign up\n" << "'login' - log in \n"
-			<< "'exit' - exit the network \n";
-
-		std::cout << "\nEnter command: ";
-		std::cin.getline(command, MAX_VALUES_SIZE);
-	}
 }
 
 void readTopicsFromFile(Vector<Topic>& topics)
@@ -405,12 +264,12 @@ void createTopic(const User& user, Vector<Topic>& topics)
 {
 	Topic topic;
 
-	char* topicName = new char();
+	char topicName[SIZE];
 	std::cout << "Enter the name of the topic you want to create: ";
 	std::cin.getline(topicName, MAX_VALUES_SIZE);
 	topic.setTopicName(topicName);
 
-	char* topicDescription = new char();
+	char topicDescription[SIZE];
 	std::cout << "Enter the description of the topic: ";
 	std::cin.getline(topicDescription, MAX_VALUES_SIZE);
 	topic.setTopicDescription(topicDescription);
@@ -466,19 +325,6 @@ void createTopic(const User& user, Vector<Topic>& topics)
 	}
 }
 
-void printCommandsList(char* command)
-{
-	std::cout << "\nCommand list:\n"
-		<< "'whoami' - See your information\n"
-		<< "'search' - See selected topics related to keyword\n"
-		<< "'create' - Create a new topic\n"
-		<< "'logout' - Log out from your account\n"
-		<< "'exit' - Exit the network\n";
-
-	std::cout << "\nEnter your command: ";
-	std::cin.getline(command, MAX_VALUES_SIZE);
-}
-
 void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics, bool& goBack)
 {
 	size_t countOfSelectedTopics = 0;//counter for the added topics in 'selectedTopics' array of class Topic
@@ -523,31 +369,19 @@ void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics,
 	}
 }
 
-void commandsListForTopics(char* commandForTopics)
-{
-	std::cout << "\nCommands list :\n"
-		<< "'about' (id) - see the topic info by supplied id\n"
-		<< "'open' - open the topic\n"
-		<< "'quit' - go back to the generel menu\n"
-		<< "'exit' - exit the network\n";
-
-	std::cout << "\nEnter your command: ";
-	std::cin.getline(commandForTopics, MAX_VALUES_SIZE);
-}
-
 void createQuestion(Question& question, char* filename)
 {
-	char* askQuestion = new char();
+	char askQuestion[SIZE];
 	std::cout << "\nEnter your question: ";
 	std::cin.getline(askQuestion, MAX_VALUES_SIZE);
 	question.setTitle(askQuestion);
 
-	char* content = new char();
+	char content[SIZE];
 	std::cout << "\nEnter the description of the question: ";
 	std::cin.getline(content, MAX_VALUES_SIZE);
 	question.setContent(content);
 
-	question.setId(getLinesCount(filename));
+	question.setId(getLinesCount(filename));//
 }
 
 void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
@@ -600,7 +434,7 @@ void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
 	std::cout << std::endl;
 }
 
-void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentIndex)
+void readCommentsFromFile(char* filename, Topic& topic, size_t currentIndex)
 {
 	Comment tempComment;
 	Question tempQuestion;
@@ -610,6 +444,12 @@ void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentInd
 	size_t tempUpvote;
 	size_t tempDownvote;
 	size_t numberOfComments = 0;
+
+	std::ifstream stream(filename);
+	if (!stream.is_open())
+	{
+		std::cout << std::endl << "ERROR! The file could nt be opened!" << std::endl;
+	}
 
 	while (!stream.eof())
 	{
@@ -639,7 +479,7 @@ void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentInd
 			tempUpvote = turnCharArrayIntoNum(buffer, tempComment.getUpvote());
 			tempComment.setId(tempUpvote);
 		}
-		else if (counter == 4 && isComment == true)
+		else if (counter == 5 && isComment == true)
 		{
 			tempDownvote = turnCharArrayIntoNum(buffer, tempComment.getDownvote());
 			tempComment.setDownvote(tempDownvote);
@@ -657,26 +497,79 @@ void readCommentsFromFile(std::ifstream& stream, Topic& topic, size_t currentInd
 		}
 	}
 
-	for (size_t i = 0; i < numberOfComments; ++i)
-	{
-		std::cout << i + 1 << ". " << topic.getQuestions()[currentIndex].getComments()[i].getCommentText()
-			<< " {id: " << topic.getQuestions()[currentIndex].getComments()[i].getId() << "}\n";
-	}
-	std::cout << std::endl;
+	stream.close();
 }
 
-void openTopicCommands(char* command)
+void createComment(User& user, Question& question, Comment& comment)
 {
-	std::cout << "Command list:\n"
-		<< "'post' - post question\n"
-		<< "'p_open' - open post(question)\n"
-		<< "'comment' - add comment\n"
-		<< "'quit' - exit the topic\n"
-		<< "'exit' = exit the network\n"
-		<< "\nEnter your command: ";
+	char commentText[SIZE];
+	std::cout << std::endl << "Enter your comment: ";
+	std::cin.getline(commentText, MAX_VALUES_SIZE);
+	comment.setCommentText(commentText);
+
+	comment.setCreatorName(user.getFirstName());
+	comment.setDownvote(0);
+	comment.setUpvote(0);
+	comment.setId(question.getComments().getSize());
 }
 
-void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
+void p_open(char* filename, User& user, Question& question, Comment& comment, size_t currentIndex ,Vector<Topic>& topics)
+{
+	char command[SIZE];
+	size_t counter = 0;
+	bool find = false;
+
+	while (true)
+	{
+		p_openCommandsList();
+		std::cout << std::endl << "Enter the command you want to use:";
+		std::cin.get();
+		std::cin.getline(command, MAX_VALUES_SIZE);
+
+		if (stringComp(command, "comment") == true)
+		{
+			createComment(user, question, comment);
+			question.setComment(comment);
+
+			for (size_t i = 0; i < topics[currentIndex].getQuestions().getSize(); ++i)
+			{
+				if (i == question.getId())
+				{
+					topics[currentIndex].setQuestionAtIndex(i, question);
+				}
+			}
+
+			std::ofstream writeFile(filename, std::ios::trunc);
+			if (!writeFile.is_open())
+			{
+				std::cout << std::endl << filename << std::endl;
+				std::cout << "ERROR! The file could not be opened!";
+				return;
+			}
+
+			for (size_t j = 0; j < topics[currentIndex].getQuestions().getSize(); ++j)
+			{
+				Question tempQ;
+				tempQ = topics[currentIndex].getQuestions()[j];
+
+				writeFile << tempQ;
+
+				for (size_t k = 0; k < tempQ.getComments().getSize(); ++k)
+				{
+					Comment tempC;
+					tempC = tempQ.getComments()[k];
+
+					writeFile << tempC;
+					std::cout << std::endl << "Your comment was successfully posted!" << std::endl;
+				}
+			}
+
+			writeFile.close();
+		}
+	}
+}
+
+void open(User& user, size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
 {
 	MyString tempString = filename;
 	tempString += ".txt";
@@ -690,12 +583,22 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 		return;
 	}
 
-	std::cout << "\nWelcome to '" << filename << "'!\n\n";
+	std::cout << "\nWelcome to '" << filename.c_str() << "'!\n\n";
 
 	readQuestionsFromFile(readTopic, selectedTopics[currentIndex]);
 
-	char* command = new char();
+	Vector<Question> tempQuestions;
+
+	for (size_t i = 0; i < selectedTopics[currentIndex].getQuestions().getSize(); ++i)
+	{
+		tempQuestions = selectedTopics[currentIndex].getQuestions();
+	}
+
+	char command[SIZE];
 	bool localExit = false;
+
+	Question currentQuestion;
+	Comment currentComment;
 
 	while (localExit == false)
 	{
@@ -704,8 +607,9 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 
 		if (stringComp(command, "post") == true)
 		{
-			Question question;
-			createQuestion(question, tempFilename);
+			Question createQ;
+
+			createQuestion(createQ, tempFilename);
 
 			std::ofstream postQuestion(tempFilename, std::ios::app);
 			if (!postQuestion.is_open())
@@ -715,7 +619,7 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 				return;
 			}
 
-			postQuestion << question;
+			postQuestion << createQ;
 			std::cout << "\nYour question has been successfully posted!\n";
 
 			postQuestion.close();
@@ -738,8 +642,17 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 
 				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{
-					if (tempId == selectedTopics[i].getId())
+					if (tempId == tempQuestions[i].getId())
 					{
+						p_open(tempFilename, user, tempQuestions[i], currentComment, currentIndex, selectedTopics);
+
+						selectedTopics[currentIndex].printTopicInfo();
+						std::cout << std::endl;
+						tempQuestions[i].printQuestionInfo();
+						std::cout << std::endl;
+						currentComment.printCommentInfo();
+						
+						std::cout << std::endl << std::endl << "END" << std::endl;
 						find = true;
 					}
 				}
@@ -755,7 +668,7 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 			else if (choice == 2)
 			{
 				bool find = false;
-				char* title = new char();
+				char title[SIZE];
 				std::cout << "\nEnter the title of the topic you want to check: ";
 				std::cin.getline(title, MAX_VALUES_SIZE);
 
@@ -763,6 +676,7 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 				{
 					if (stringComp(title, selectedTopics[i].getTopicName().c_str()))
 					{
+						p_open(tempFilename, user, tempQuestions[i], currentComment, currentIndex, selectedTopics);
 						find = true;
 					}
 				}
@@ -781,10 +695,6 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 
 			std::cin.get();
 		}
-		else if (stringComp(command, "comment") == true)
-		{
-
-		}
 		else if (stringComp(command, "quit") == true)
 		{
 			return;
@@ -799,7 +709,7 @@ void open(size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename,
 	readTopic.close();
 }
 
-void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
+void commandsForTopics(User& user, char* commandForTopics, Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
 {
 	bool localExit = false;
 
@@ -851,7 +761,7 @@ void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bo
 				{
 					if (currentId == selectedTopics[i].getId())
 					{
-						open(i, selectedTopics, selectedTopics[i].getTopicName(), exit);
+						open(user, i, selectedTopics, selectedTopics[i].getTopicName(), exit);
 						find = true;
 					}
 				}
@@ -865,7 +775,7 @@ void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bo
 			else if (choice == 2)
 			{
 				bool find = false;
-				char* currentTitle = new char();
+				char currentTitle[SIZE];
 				std::cout << "Enter the full title: ";
 				std::cin.get();
 				std::cin.getline(currentTitle, MAX_VALUES_SIZE);
@@ -874,7 +784,7 @@ void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bo
 				{
 					if (stringComp(currentTitle, selectedTopics[i].getTopicName().c_str()))
 					{
-						open(i, selectedTopics, selectedTopics[i].getTopicName(), exit);
+						open(user, i, selectedTopics, selectedTopics[i].getTopicName(), exit);
 						find = true;
 					}
 				}
@@ -914,7 +824,7 @@ void commandsForTopics(char* commandForTopics, Vector<Topic>& selectedTopics, bo
 void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& topics, Vector<User>& users)
 {
 	Vector<Topic> selectedTopics;
-	char* commandForTopics = new char();
+	char commandForTopics[SIZE];
 
 	printCommandsList(command);
 
@@ -938,7 +848,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& to
 			bool goBack = false;
 
 			std::cout << "\nEnter key word: ";
-			char* keyWord = new char();
+			char keyWord[SIZE];
 			std::cin.getline(keyWord, MAX_VALUES_SIZE);
 			search(keyWord, topics, selectedTopics, goBack);
 
@@ -948,7 +858,7 @@ void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& to
 			}
 			else
 			{
-				commandsForTopics(commandForTopics, selectedTopics, goBack, exit);
+				commandsForTopics(user, commandForTopics, selectedTopics, goBack, exit);
 
 				if (goBack == true)
 				{

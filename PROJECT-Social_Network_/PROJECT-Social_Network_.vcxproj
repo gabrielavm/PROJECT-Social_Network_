@@ -135,7 +135,9 @@
     <ClCompile Include="User.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CommandListsFunctions.h" />
     <ClInclude Include="Comment.h" />
+    <ClInclude Include="HelperFunctions.h" />
     <ClInclude Include="MyStringSso.h" />
     <ClInclude Include="Network_UI_Functions.h" />
     <ClInclude Include="Question.h" />

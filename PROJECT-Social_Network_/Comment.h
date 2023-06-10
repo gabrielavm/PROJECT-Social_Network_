@@ -4,7 +4,6 @@
 
 class Comment
 {
-	Vector<MyString> replies;
 	MyString creatorName;
 	MyString commentText;
 	size_t downvote = 0;

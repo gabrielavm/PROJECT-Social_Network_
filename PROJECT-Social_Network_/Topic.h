@@ -20,6 +20,7 @@ public:
 	void setCreatorName(const MyString& creatorName);
 	void setTopicDescription(const MyString& topicDescription);
 	void setQuestion(const Question& question);
+	void setQuestionAtIndex(size_t id, const Question& question);
 	void setId(const size_t id);
 
 	const MyString& getTopicName() const;

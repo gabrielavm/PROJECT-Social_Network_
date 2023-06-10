@@ -1,0 +1,4 @@
+question:
+1
+Is there a destructor in Java?
+<question description>

@@ -14,15 +14,3 @@ question:
 13
 How to work with git?
 <question description>
-question:
-17
-question1
-description1
-question:
-21
-question2
-description2
-question:
-25
-question3
-description3

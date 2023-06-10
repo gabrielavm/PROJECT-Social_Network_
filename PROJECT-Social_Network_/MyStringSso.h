@@ -48,9 +48,9 @@ public:
 	~MyString();
 
 	friend MyString operator+(const MyString& lhs, const MyString& rhs);
-};
 
-std::ostream& operator<<(std::ostream& os, const MyString& obj);
+	friend std::ostream& operator<<(std::ostream& os, const MyString& obj);
+};
 
 bool operator<(const MyString& lhs, const MyString& rhs);
 bool operator<=(const MyString& lhs, const MyString& rhs);
