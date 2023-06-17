@@ -106,8 +106,8 @@ const size_t Comment::getQId() const
 
 const void Comment::printCommentInfo() const
 {
-	std::cout << std::endl << "Comment: " << this->commentText << std::endl
-		<< "By: " << this->creatorName << std::endl
+	std::cout << std::endl << this->creatorName << " : "
+		<< this->commentText << std::endl
 		<< "Comment about: {id: " << this->qId << "}" << std::endl
 		<< "downvote: " << this->downvote << " | " << "unvote: " << this->upvote << std::endl
 		<< "ID: " << this->id << std::endl;
@@ -115,7 +115,9 @@ const void Comment::printCommentInfo() const
 
 std::ostream& operator<<(std::ostream& os, const Comment& comment)
 {
-	return os << comment.id << std::endl
+	return os << "comment:" << std::endl
+		<< comment.qId << std::endl
+		<< comment.id << std::endl
 		<< comment.creatorName << std::endl
 		<< comment.commentText << std::endl
 		<< comment.upvote << std::endl

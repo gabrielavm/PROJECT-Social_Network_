@@ -214,7 +214,7 @@ void readCommentsFromFile(char* filename, Vector<Comment>& comments)
 		else if (counter == 5 && isComment == true)
 		{
 			tempUpvote = turnCharArrayIntoNum(buffer, tempComment.getUpvote());
-			tempComment.setId(tempUpvote);
+			tempComment.setUpvote(tempUpvote);
 		}
 		else if (counter == 6 && isComment == true)
 		{

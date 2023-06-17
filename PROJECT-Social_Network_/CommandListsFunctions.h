@@ -49,6 +49,7 @@ void openTopicCommands(char* command)
 		<< "'quit' - exit the topic\n"
 		<< "'exit' - exit the network\n"
 		<< "\nEnter your command: ";
+	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
 void p_openCommandsList()
@@ -64,6 +65,7 @@ void commentsCommandsList(char* command)
 	std::cout << std::endl << "Commands list:" << std::endl
 		<< "1. 'upvote'" << std::endl
 		<< "2. 'downvote'" << std::endl
+		<< "3. 'quit'" << std::endl
 		<< std::endl << "Enter your command: ";
 
 	std::cin.getline(command, MAX_VALUES_SIZE);

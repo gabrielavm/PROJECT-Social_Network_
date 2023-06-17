@@ -55,6 +55,14 @@ void Topic::setQuestionAtIndex(size_t id, const Question& question)
 	}
 }
 
+void Topic::setQuestionComments(size_t index, const Vector<Comment> comments)
+{
+	for (size_t i = 0; i < comments.getSize(); ++i)
+	{
+		questions[index].setComment(comments[i]);
+	}
+}
+
 void Topic::setId(const size_t id)
 {
 	if (id < 0)

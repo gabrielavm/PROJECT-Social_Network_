@@ -21,6 +21,7 @@ public:
 	void setTopicDescription(const MyString& topicDescription);
 	void setQuestion(const Question& question);
 	void setQuestionAtIndex(size_t id, const Question& question);
+	void setQuestionComments(size_t index, const Vector<Comment> comments);
 	void setId(const size_t id);
 
 	const MyString& getTopicName() const;
