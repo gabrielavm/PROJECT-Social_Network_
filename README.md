@@ -9,6 +9,7 @@ After successfully logging on, each user can use the following commands:
 5. "open<topic id>" / "open<full topic name>" - Opens a specific topic by submitted ID or full topic name. By opening a topic you are allowed to see all the posts about it. Once a topic is opened, the following commands can be applied on it:
    - "post" - Create a post in the opened topic.
    - "p_open<id>" - Open a post by supplying the post's id.When a post is opened, the following commands can be used:
+     
                                       1. "comment" - Comment about the opened topic.
      
                                       2. "comments" - See all the comments about the opened post.
@@ -19,7 +20,7 @@ After successfully logging on, each user can use the following commands:
      
                                       5. "p_close" -  Closing the opened post.
 
-     - "quit" - Exit the opened topic.
+   - "quit" - Exit the opened topic.
 
 7. "logout" - logout from the account.
 8. "exit" - exit the network.
