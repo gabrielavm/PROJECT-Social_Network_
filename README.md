@@ -7,15 +7,19 @@ After successfully logging on, each user can use the following commands:
 3. "whoami" - Displays information about the user who is currently logged on.
 4. "about<id>" - Displays information about the topic whose ID is entered.
 5. "open<topic id>" / "open<full topic name>" - Opens a specific topic by submitted ID or full topic name. By opening a topic you are allowed to see all the posts about it. Once a topic is opened, the following commands can be applied on it:
-                    1. "post" - Create a post in the opened topic.
-                    2. "p_open<id>" - Open a post by supplying the post's id.When a post is opened, the following commands can be used:
+   - "post" - Create a post in the opened topic.
+   - "p_open<id>" - Open a post by supplying the post's id.When a post is opened, the following commands can be used:
                                       1. "comment" - Comment about the opened topic.
+     
                                       2. "comments" - See all the comments about the opened post.
+     
                                       3. "upvote<id>"
+     
                                       4. "downvote<id>"
+     
                                       5. "p_close" -  Closing the opened post.
 
-                    3. "quit" - Exit the opened topic.
+     - "quit" - Exit the opened topic.
 
-6. "logout" - logout from the account.
-7. "exit" - exit the network.
+7. "logout" - logout from the account.
+8. "exit" - exit the network.
