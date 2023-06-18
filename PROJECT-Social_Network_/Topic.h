@@ -24,6 +24,9 @@ public:
 	void setQuestionComments(size_t index, const Vector<Comment> comments);
 	void setId(const size_t id);
 
+	void clearQuestions();
+	void clearQuestionComments(size_t index);
+
 	const MyString& getTopicName() const;
 	const MyString& getCreatorName() const;
 	const MyString& getTopicDescription() const;

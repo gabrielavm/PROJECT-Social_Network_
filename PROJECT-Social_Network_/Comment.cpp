@@ -109,13 +109,13 @@ const void Comment::printCommentInfo() const
 	std::cout << std::endl << this->creatorName << " : "
 		<< this->commentText << std::endl
 		<< "Comment about: {id: " << this->qId << "}" << std::endl
-		<< "downvote: " << this->downvote << " | " << "unvote: " << this->upvote << std::endl
+		<< "downvote: " << this->downvote << " | " << "upvote: " << this->upvote << std::endl
 		<< "ID: " << this->id << std::endl;
 }
 
 std::ostream& operator<<(std::ostream& os, const Comment& comment)
 {
-	return os << "comment:" << std::endl
+	return os << std::endl << "comment:" << std::endl
 		<< comment.qId << std::endl
 		<< comment.id << std::endl
 		<< comment.creatorName << std::endl

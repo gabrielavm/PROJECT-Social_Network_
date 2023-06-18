@@ -43,6 +43,11 @@ void Question::setId(const size_t id)
 	}
 }
 
+void Question::clearComments()
+{
+	comments.clear();
+}
+
 const MyString& Question::getTitle() const
 {
 	return title;

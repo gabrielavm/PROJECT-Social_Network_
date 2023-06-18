@@ -19,6 +19,8 @@ public:
 	void setComment(const Comment& comment);
 	void setId(const size_t id);
 
+	void clearComments();
+
 	const MyString& getTitle() const;
 	const MyString& getContent() const;
 	const Vector<Comment>& getComments() const;

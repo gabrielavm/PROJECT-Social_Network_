@@ -75,6 +75,16 @@ void Topic::setId(const size_t id)
 	}
 }
 
+void Topic::clearQuestions()
+{
+	questions.clear();
+}
+
+void Topic::clearQuestionComments(size_t index)
+{
+	questions[index].clearComments();
+}
+
 const MyString& Topic::getTopicName() const
 {
 	return topicName;

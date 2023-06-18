@@ -294,7 +294,7 @@ void createComment(User& user, Question& question, Comment& comment, char* filen
 	comment.setId(getLinesCount(filename));
 }
 
-void rewriteFileInfo(char* filename, Vector<Topic>& topics)
+void rewriteFileInfo(char* filename, Vector<Topic>& topics, size_t currentIndex)
 {
 	std::ofstream rewrite(filename, std::ios::trunc);
 	if (!rewrite.is_open())
@@ -303,39 +303,32 @@ void rewriteFileInfo(char* filename, Vector<Topic>& topics)
 		return;
 	}
 
-	for (size_t i = 0; i < topics.getSize(); ++i)
+	for (size_t j = 0; j < topics[currentIndex].getQuestions().getSize(); ++j)
 	{
-		rewrite << topics[i];
+		rewrite << topics[currentIndex].getQuestions()[j];
 
-		for (size_t j = 0; j < topics[i].getQuestions().getSize(); ++j)
+		for (size_t k = 0; k < topics[currentIndex].getQuestions()[j].getComments().getSize(); ++k)
 		{
-			rewrite << topics[i].getQuestions()[j];
-
-			for (size_t k = 0; k < topics[i].getQuestions()[j].getComments().getSize(); ++k)
-			{
-				rewrite << topics[i].getQuestions()[j].getComments()[k];
-			}
+			rewrite << topics[currentIndex].getQuestions()[j].getComments()[k];
 		}
 	}
 
 	rewrite.close();
 }
 
-void upVote(bool& upvote, Vector<Comment>& commentsToPrint)
+void upVote(bool* doUpvote, Vector<Comment>& commentsToPrint)
 {
-	std::cout << "Enter id :";
+	std::cout << "Enter the id of the comment you want to vote for:";
 	size_t id;
 	std::cin >> id;
 
-	if (upvote == true)
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
 	{
-		for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+		if (id == commentsToPrint[i].getId() && doUpvote[i] == true)
 		{
-			if (id == commentsToPrint[i].getId())
-			{
-				commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() - 1);
-				return;
-			}
+			commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() - 1);
+			doUpvote[i] = false;
+			return;
 		}
 	}
 
@@ -344,26 +337,24 @@ void upVote(bool& upvote, Vector<Comment>& commentsToPrint)
 		if (id == commentsToPrint[i].getId())
 		{
 			commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() + 1);
-			upvote = true;
+			doUpvote[i] = true;
 		}
 	}
 }
 
-void downVote(bool& downvote, Vector<Comment>& commentsToPrint)
+void downVote(bool* doDownvote, Vector<Comment>& commentsToPrint)
 {
-	std::cout << "Enter id :";
+	std::cout << "Enter the id of the comment you want to vote for:";
 	size_t id;
 	std::cin >> id;
 
-	if (downvote == true)
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
 	{
-		for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+		if (id == commentsToPrint[i].getId() && doDownvote[i] == true)
 		{
-			if (id == commentsToPrint[i].getId())
-			{
-				commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() + 1);
-				return;
-			}
+			commentsToPrint[i].setDownvote(commentsToPrint[i].getDownvote() - 1);
+			doDownvote[i] = false;
+			return;
 		}
 	}
 
@@ -371,14 +362,9 @@ void downVote(bool& downvote, Vector<Comment>& commentsToPrint)
 	{
 		if (id == commentsToPrint[i].getId())
 		{
-			commentsToPrint[i].setUpvote(commentsToPrint[i].getUpvote() - 1);
-			downvote = true;
+			commentsToPrint[i].setDownvote(commentsToPrint[i].getDownvote() + 1);
+			doDownvote[i] = true;
 		}
-	}
-
-	for (int i = 0; i < commentsToPrint.getSize(); ++i)
-	{
-		commentsToPrint[i].printCommentInfo();
 	}
 }
 
@@ -388,8 +374,13 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 	size_t counter = 0;
 	bool find = false;
 
-	bool upvote = false;
-	bool downvote = false;
+	//Using the 'doUpvote' and 'doDownvote' bool arrays in order to know if we  
+	//already voted for some comment. For example if someone tries to upvote
+	//a comment that has been upvoted from someone else earlier the upvoted will 
+	//increase, but if we try to upvote one comment twice from one account the 
+	//upvotes will decrease.
+	bool* doUpvote = new bool[topics[currentIndex].getQuestions().getSize()];
+	bool* doDownvote = new bool[topics[currentIndex].getQuestions().getSize()];
 
 	std::cout << std::endl << "Opened post: '" << question.getTitle() << "'" << std::endl;
 	std::cin.get();
@@ -453,13 +444,17 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 
 				if (stringComp(command, "upvote") == true)
 				{
-					upVote(upvote, commentsToPrint);
+					upVote(doUpvote, commentsToPrint);
+					topics[currentIndex].clearQuestionComments(postIndex);
 					topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
-					rewriteFileInfo(filename, topics);
+					rewriteFileInfo(filename, topics, currentIndex);
 				}
 				else if (stringComp(command, "downvote") == true)
 				{
-					downVote(downvote, commentsToPrint);
+					downVote(doDownvote, commentsToPrint);
+					topics[currentIndex].clearQuestionComments(postIndex);
+					topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
+					rewriteFileInfo(filename, topics, currentIndex);
 				}
 				else if (stringComp(command, "quit") == true)
 				{
@@ -473,31 +468,13 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 		}
 		else if(stringComp(command, "p_close") == true)
 		{
-			Vector<Comment> comments;
-
-			readCommentsFromFile(filename, comments);
-
-			std::ofstream file(filename, std::ios::trunc);
-			if (!file.is_open())
-			{
-				std::cout << std::endl << "ERROR! The file could not be opened!" << std::endl;
-			}
-
-			for (size_t i = 0; i < topics.getSize(); ++i)
-			{
-				file << topics[currentIndex].getQuestions()[i];
-			}
-
-			for (size_t j = 0; j < comments.getSize(); ++j)
-			{
-				file << "comment:" << std::endl << comments[j].getQId() << std::endl << comments[j];
-			}
-
-			file.close();
-
 			return;
 		}
+		std::cin.get();
 	}
+
+	delete[] doUpvote;
+	delete[] doDownvote;
 }
 
 void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
@@ -518,7 +495,6 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 	std::cout << "\nWelcome to '" << filename.c_str() << "'!\n\n";
 
 	readQuestionsFromFile(readTopic, selectedTopics[currentIndex]);
-
 	Vector<Question> tempQuestions;
 
 	for (size_t i = 0; i < selectedTopics[currentIndex].getQuestions().getSize(); ++i)
@@ -568,7 +544,10 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 			Topic tempTopic = selectedTopics[currentIndex];
 			
 			std::cout << "POSTS:" << std::endl;
+
+			tempTopic.clearQuestions();
 			readQuestionsFromFile(localReadTopic, tempTopic);
+			selectedTopics[currentIndex].clearQuestions();
 			selectedTopics[currentIndex] = tempTopic;
 
 			localReadTopic.close();
