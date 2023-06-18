@@ -8,7 +8,8 @@ After successfully logging on, each user can use the following commands:
 4. "about<id>" - Displays information about the topic whose ID is entered.
 5. "open<topic id>" / "open<full topic name>" - Opens a specific topic by submitted ID or full topic name. By opening a topic you are
     - "post" - Create a post in the opened topic
-    - "p_open<id>" - Open a post by supplying the post's id.When a post is opened, the following commands can be used: 
+    - "p_open<id>" - Open a post by supplying the post's id.When a post is opened, the following commands can be used:
+      
                                       1. "comment" - Comment about the opened topic.
       
                                       2. "comments" - See all the comments about the opened post.
