@@ -9,8 +9,7 @@ void readUsersFromFile(Vector<User>& users)
 	std::ifstream readUsers(USERS_LIST_FILE);
 	if (!readUsers.is_open())
 	{
-		std::cout << "\nERROR! The file could not be opened!\n";
-		return;
+		throw std::exception("ERROR! The file could not be opened!");
 	}
 
 	while (!readUsers.eof())
@@ -69,8 +68,7 @@ void readTopicsFromFile(Vector<Topic>& topics)
 	std::ifstream topicFile(TOPICS_LIST_FILE);
 	if (!topicFile.is_open())
 	{
-		std::cout << "ERROR! The file could not be opened!";
-		return;
+		throw std::exception("ERROR! The file could not be opened!");
 	}
 
 	//There is one file with information of all topics 
@@ -160,7 +158,7 @@ void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
 	for (size_t i = 0; i < numberOfQuestions; ++i)
 	{
 		std::cout << i + 1 << ". " << topic.getQuestions()[i].getTitle() << " {id: "
-			<< topic.getQuestions()[i].getId() << "}\n";
+			<< topic.getQuestions()[i].getId() << "}" << std::endl;
 	}
 	std::cout << std::endl;
 }
@@ -180,7 +178,7 @@ void readCommentsFromFile(char* filename, Vector<Comment>& comments)
 	std::ifstream stream(filename);
 	if (!stream.is_open())
 	{
-		std::cout << std::endl << "ERROR! The file could nt be opened!" << std::endl;
+		throw std::exception("ERROR! The file could not be opened!");
 	}
 
 	while (!stream.eof())

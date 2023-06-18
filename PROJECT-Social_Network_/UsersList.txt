@@ -2,8 +2,8 @@ user1 surname1 pass1 1 0
 user2 surname2 pass2 2 0
 user3 surname3 pass3 3 0
 user4 surname4 pass4 4 0
-user5 surname5 pass5 5 1
-user6 surname6 pass6 6 0
+user5 surname5 pass5 5 2
+user6 surname6 pass6 6 2
 user7 surname7 pass7 7 0
 user8 surname8 pass8 8 0
 user9 surname9 pass9 9 2
@@ -13,3 +13,6 @@ user12 surname12 pass12 12 0
 user13 surname13 pass13 13 0
 user14 surname14 pass14 14 0
 user15 surname15 pass15 15 0
+user16 surname16 pass16 16 0
+user17 surname17 pass17 17 0
+user18 surname18 pass18 18 0

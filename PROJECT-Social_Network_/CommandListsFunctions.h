@@ -3,56 +3,61 @@
 
 const int MAX_VALUES_SIZE = 1024;
 
-void logOutHelperFunction(bool logOut, char* command)
+const void logOutHelperFunction(bool logOut, char* command)
 {
 	if (logOut == true)
 	{
-		std::cout << std::endl << "\nSign up, log in your account or exit! \n\n";
-		std::cout << "Command list: \n" << "'signup' - sign up\n" << "'login' - log in \n"
-			<< "'exit' - exit the network \n";
+		std::cout << std::endl << std::endl 
+			<< "Sign up, log in your account or exit!" 
+			<< std::endl << std::endl;
 
-		std::cout << "\nEnter command: ";
+		std::cout << "Command list: " << std::endl 
+			<< "'signup' - sign up" << std::endl 
+			<< "'login' - log in " << std::endl
+			<< "'exit' - exit the network" << std::endl;
+
+		std::cout << std::endl << "Enter command: ";
 		std::cin.getline(command, MAX_VALUES_SIZE);
 	}
 }
 
-void printCommandsList(char* command)
+const void printCommandsList(char* command)
 {
-	std::cout << "\nCommand list:\n"
-		<< "'whoami' - See your information\n"
-		<< "'search' - See selected topics related to keyword\n"
-		<< "'create' - Create a new topic\n"
-		<< "'logout' - Log out from your account\n"
-		<< "'exit' - Exit the network\n";
+	std::cout << std::endl << "Command list:" << std::endl
+		<< "'whoami' - See your information" << std::endl
+		<< "'search' - See selected topics related to keyword" << std::endl
+		<< "'create' - Create a new topic" << std::endl
+		<< "'logout' - Log out from your account" << std::endl
+		<< "'exit' - Exit the network" << std::endl;
 
-	std::cout << "\nEnter your command: ";
+	std::cout << std::endl << "Enter your command: ";
 	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
-void commandsListForTopics(char* commandForTopics)
+const void commandsListForTopics(char* commandForTopics)
 {
-	std::cout << "\nCommands list :\n"
-		<< "'about' (id) - see the topic info by supplied id\n"
-		<< "'open' - open the topic\n"
-		<< "'quit' - go back to the generel menu\n"
-		<< "'exit' - exit the network\n";
+	std::cout << std::endl << "Commands list :" << std::endl
+		<< "'about' (id) - see the topic info by supplied id" << std::endl
+		<< "'open' - open the topic" << std::endl
+		<< "'quit' - go back to the generel menu" << std::endl
+		<< "'exit' - exit the network" << std::endl;
 
-	std::cout << "\nEnter your command: ";
+	std::cout << std::endl << "Enter your command: ";
 	std::cin.getline(commandForTopics, MAX_VALUES_SIZE);
 }
 
-void openTopicCommands(char* command)
+const void openTopicCommands(char* command)
 {
-	std::cout << "Command list:\n"
-		<< "'post' - post question\n"
-		<< "'p_open' - open post(question)\n"
-		<< "'quit' - exit the topic\n"
-		<< "'exit' - exit the network\n"
-		<< "\nEnter your command: ";
+	std::cout << "Command list:" << std::endl
+		<< "'post' - post question" << std::endl
+		<< "'p_open' - open post(question)" << std::endl
+		<< "'quit' - exit the topic" << std::endl
+		<< "'exit' - exit the network" << std::endl
+		<< std::endl << "Enter your command: ";
 	std::cin.getline(command, MAX_VALUES_SIZE);
 }
 
-void p_openCommandsList()
+const void p_openCommandsList()
 {
 	std::cout << std::endl << "Command list: " << std::endl
 		<< "'comment' - post a comment to this question" << std::endl
@@ -60,7 +65,7 @@ void p_openCommandsList()
 		<< "'p_close' - close the current post" << std::endl;
 }
 
-void commentsCommandsList(char* command)
+const void commentsCommandsList(char* command)
 {
 	std::cout << std::endl << "Commands list:" << std::endl
 		<< "1. 'upvote'" << std::endl

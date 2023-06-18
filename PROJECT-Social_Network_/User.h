@@ -19,26 +19,17 @@ public:
 	User();
 
 	void setFirstName(const MyString& firstName);
-
 	void setSurname(const MyString& surname);
-
 	void setPassword(const MyString& password);
-
 	void setId(const size_t id);
-
 	void setPoints(const size_t points);
 
 	const MyString& getFirstName() const;
-
 	const MyString& getSurname() const;
-
 	const MyString& getPassword() const;
-
 	const size_t getId() const;
-
 	const size_t getPoints() const;
 
 	const void printUsersInfo() const;
-
 	friend std::ostream& operator<<(std::ostream& os, const User& user);
 };

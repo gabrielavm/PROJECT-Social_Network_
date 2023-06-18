@@ -38,7 +38,6 @@ void Topic::setTopicDescription(const MyString& topicDescription)
 	}
 }
 
-
 void Topic::setQuestion(const Question& question)
 {
 	questions.pushBack(question);

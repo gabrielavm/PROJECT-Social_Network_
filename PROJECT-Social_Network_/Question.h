@@ -27,6 +27,5 @@ public:
 	const size_t getId() const;
 
 	const void printQuestionInfo() const;
-
 	friend std::ostream& operator<<(std::ostream& os, const Question& question);
 };

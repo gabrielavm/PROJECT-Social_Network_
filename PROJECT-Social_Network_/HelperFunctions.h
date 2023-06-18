@@ -13,11 +13,11 @@ const char TOPICS_LIST_FILE[] = "TopicsList.txt";
 //Variables that show where the exact value is saved in the file with the registered users
 //For example each time a user is being registered his info is being saved in the 
 // following sequence :  First name , Surname, Password, Id , Points
-static const int firstNameIndex = 1;
-static const int surnameIndex = 2;
-static const int passwordIndex = 3;
-static const int idIndex = 4;
-static const int pointsIndex = 5;
+const int firstNameIndex = 1;
+const int surnameIndex = 2;
+const int passwordIndex = 3;
+const int idIndex = 4;
+const int pointsIndex = 5;
 
 //Helper function to find the length of string
 size_t stringLen(const char* string)
