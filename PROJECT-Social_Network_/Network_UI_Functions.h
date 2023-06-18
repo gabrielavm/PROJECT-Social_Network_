@@ -374,7 +374,7 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 	size_t counter = 0;
 	bool find = false;
 
-	//Using the 'doUpvote' and 'doDownvote' bool arrays in order to know if we  
+	//Using the 'doUpvote' and 'doDownvote' bool arrays in order to know if we
 	//already voted for some comment. For example if someone tries to upvote
 	//a comment that has been upvoted from someone else earlier the upvoted will 
 	//increase, but if we try to upvote one comment twice from one account the 
@@ -742,7 +742,7 @@ void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, V
 	}
 }
 
-void func(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& topics, Vector<User>& users)
+void mainCommandsFunction(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& topics, Vector<User>& users)
 {
 	Vector<Topic> selectedTopics;
 	char commandForTopics[SIZE];

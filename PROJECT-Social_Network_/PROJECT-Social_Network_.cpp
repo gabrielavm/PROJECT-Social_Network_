@@ -60,7 +60,7 @@ int main()
 						return 0;
 					}
 
-					func(exit, logOut, command, user, topics, users);
+					mainCommandsFunction(exit, logOut, command, user, topics, users);
 
 					if (exit == true)
 					{
@@ -89,7 +89,7 @@ int main()
 				return 0;
 			}
 
-			func(exit, logOut, command, user, topics, users);
+			mainCommandsFunction(exit, logOut, command, user, topics, users);
 
 			if (exit == true)
 			{
