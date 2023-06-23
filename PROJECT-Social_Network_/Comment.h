@@ -1,9 +1,11 @@
 #pragma once
 #include "MyStringSso.h"
 #include "Vector.hpp"
+#include "Reply.h"
 
 class Comment
 {
+	Vector<Reply> replies;
 	MyString creatorName;
 	MyString commentText;
 	size_t downvote = 0;
@@ -16,6 +18,7 @@ public:
 
 	Comment();
 
+	void setReply(const Reply& reply);
 	void setCreatorName(const MyString& creatorName);
 	void setCommentText(const MyString& commentText);
 	void setDownvote(const size_t downvote);
@@ -23,6 +26,9 @@ public:
 	void setId(const size_t id);
 	void setQId(const size_t qId);
 
+	void clearReplies();
+
+	const Vector<Reply>& getReplies() const;
 	const MyString& getCreatorName() const;
 	const MyString& getCommentText() const;
 	const size_t getDownvote() const;

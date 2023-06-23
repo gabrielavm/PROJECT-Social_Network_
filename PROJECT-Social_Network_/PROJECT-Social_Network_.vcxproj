@@ -131,6 +131,7 @@
     <ClCompile Include="MyStringSso.cpp" />
     <ClCompile Include="PROJECT-Social_Network_.cpp" />
     <ClCompile Include="Question.cpp" />
+    <ClCompile Include="Reply.cpp" />
     <ClCompile Include="Topic.cpp" />
     <ClCompile Include="User.cpp" />
   </ItemGroup>
@@ -142,6 +143,7 @@
     <ClInclude Include="Network_UI_Functions.h" />
     <ClInclude Include="Question.h" />
     <ClInclude Include="ReadFromFileFunctions.h" />
+    <ClInclude Include="Reply.h" />
     <ClInclude Include="Topic.h" />
     <ClInclude Include="User.h" />
     <ClInclude Include="Vector.hpp" />

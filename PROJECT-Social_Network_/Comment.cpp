@@ -2,6 +2,11 @@
 
 Comment::Comment() = default;
 
+void Comment::setReply(const Reply& reply)
+{
+	replies.pushBack(reply);
+}
+
 void Comment::setCreatorName(const MyString& creatorName)
 {
 	if (creatorName.length() >= 1)
@@ -72,6 +77,16 @@ void Comment::setQId(const size_t qId)
 	{
 		this->qId = qId;
 	}
+}
+
+void Comment::clearReplies()
+{
+	replies.clear();
+}
+
+const Vector<Reply>& Comment::getReplies() const
+{
+	return replies;
 }
 
 const MyString& Comment::getCreatorName() const

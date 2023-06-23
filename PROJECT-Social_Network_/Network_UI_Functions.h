@@ -307,6 +307,11 @@ void rewriteFileInfo(char* filename, Vector<Topic>& topics, size_t currentIndex)
 		for (size_t k = 0; k < topics[currentIndex].getQuestions()[j].getComments().getSize(); ++k)
 		{
 			rewrite << topics[currentIndex].getQuestions()[j].getComments()[k];
+
+			for (size_t p = 0; p < topics[currentIndex].getQuestions()[j].getComments()[k].getReplies().getSize(); ++p)
+			{
+				rewrite << topics[currentIndex].getQuestions()[j].getComments()[k].getReplies()[p];
+			}
 		}
 	}
 
@@ -365,6 +370,193 @@ void downVote(bool* doDownvote, Vector<Comment>& commentsToPrint)
 	}
 }
 
+void replies(Vector<Comment> commentsToPrint)
+{
+	std::cout << std::endl << "Enter the id of the comment you want to see replies for: ";
+	size_t commentId;
+	std::cin >> commentId;
+
+	for (size_t j = 0; j < commentsToPrint.getSize(); ++j)
+	{
+		if (commentsToPrint[j].getId() == commentId)
+		{
+			if (commentsToPrint[j].getReplies().getSize() > 0)
+			{
+				std::cout << std::endl << "Replies for { id: " << commentId << " }" << std::endl;
+				for (size_t i = 0; i < commentsToPrint[j].getReplies().getSize(); ++i)
+				{
+					std::cout << i + 1 << ". ";
+					commentsToPrint[j].getReplies()[i].printReplyInfo();
+				}
+			}
+			else
+			{
+				std::cout << std::endl << "There is no replies for this comment!" << std::endl;
+			}
+		}
+	}
+}
+
+void createReply(User& user, Reply& reply, size_t id, Comment& comment)
+{
+	char data[SIZE];
+	std::cout << std::endl << "Enter your reply: ";
+	std::cin.get();
+	std::cin.getline(data, MAX_VALUES_SIZE);
+
+	reply.setData(data);
+	reply.setCreator(user.getFirstName());
+	reply.setId(id);
+
+	comment.setReply(reply);
+}
+
+void setRepliesToComment(const Vector<Reply>& replies, Comment& comment)
+{
+	for (size_t i = 0; i < replies.getSize(); ++i)
+	{
+		if (comment.getId() == replies[i].getId())
+		{
+			comment.setReply(replies[i]);
+		}
+	}
+}
+
+void comments(char* filename, Question& question, bool* doUpvote, bool* doDownvote, size_t postIndex,
+	Vector<Topic>& topics, size_t currentIndex, User& user)
+{
+	Vector<Comment> commentsToPrint;
+	Vector<Reply> repliesToPrint;
+
+	readCommentsFromFile(filename, commentsToPrint);
+
+	repliesToPrint.clear();
+	readRepliesFromFile(filename, repliesToPrint);
+
+	//set the replies to the comments they belong to
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+	{
+		setRepliesToComment(repliesToPrint, commentsToPrint[i]);
+	}
+
+	std::cout << std::endl << "COMMENTS: " << std::endl;
+
+	size_t commentsCount = 0;
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+	{
+		if (question.getId() == commentsToPrint[i].getQId())
+		{
+			commentsToPrint[i].printCommentInfo();
+			++commentsCount;
+		}
+	}
+
+	if (commentsCount == 0)
+	{
+		std::cout << std::endl << "There is no comments under the selected post!" << std::endl;
+	}
+	else
+	{
+		char command[SIZE];
+		commentsCommandsList(command);
+
+		if (stringComp(command, "upvote") == true)
+		{
+			upVote(doUpvote, commentsToPrint);
+			topics[currentIndex].clearQuestionComments(postIndex);
+			topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
+			rewriteFileInfo(filename, topics, currentIndex);
+		}
+		else if (stringComp(command, "downvote") == true)
+		{
+			downVote(doDownvote, commentsToPrint);
+			topics[currentIndex].clearQuestionComments(postIndex);
+			topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
+			rewriteFileInfo(filename, topics, currentIndex);
+		}
+		else if (stringComp(command, "replies") == true)
+		{
+			repliesToPrint.clear();
+			readRepliesFromFile(filename, repliesToPrint);
+
+			//set the replies to the comments they belong to
+			for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+			{
+				commentsToPrint[i].clearReplies();
+				setRepliesToComment(repliesToPrint, commentsToPrint[i]);
+			}
+			topics[currentIndex].clearQuestionComments(postIndex);
+			topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
+
+			replies(commentsToPrint);
+		}
+		else if (stringComp(command, "reply") == true)
+		{
+			Reply reply;
+
+			std::cout << std::endl << "Enter the id of the comment you want to reply to: ";
+			size_t commentId;
+			std::cin >> commentId;
+
+			for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+			{
+				if (commentsToPrint[i].getId() == commentId)
+				{
+					createReply(user, reply, commentId, commentsToPrint[i]);
+				}
+			}
+
+			std::ofstream writeReply(filename, std::ios::app);
+			if (!writeReply.is_open())
+			{
+				throw std::exception("ERROR! The file could not be opened!");
+			}
+
+			writeReply << reply;
+			std::cout << std::endl << "Your reply has been successfully posted!" << std::endl;
+
+			writeReply.close();
+		}
+		else if (stringComp(command, "quit") == true)
+		{
+			return;
+		}
+		else
+		{
+			std::cout << std::endl << "Wrong command!" << std::endl;
+		}
+	}
+}
+
+void commentCommand(User& user, Question& question, Comment& comment, char* filename, Vector<Topic>& topics,
+	size_t currentIndex)
+{
+	createComment(user, question, comment, filename);
+	question.setComment(comment);
+
+	for (size_t i = 0; i < topics[currentIndex].getQuestions().getSize(); ++i)
+	{
+		if (i == question.getId())
+		{
+			topics[currentIndex].setQuestionAtIndex(i, question);
+		}
+	}
+
+	std::ofstream writeFile(filename, std::ios::app);
+	if (!writeFile.is_open())
+	{
+		throw std::exception("ERROR! The file could not be opened!");
+	}
+
+	writeFile << comment;
+	std::cout << std::endl << "Your comment has been successfully posted!" << std::endl;
+	std::cout << "Tap to continue! ";
+
+	user.setPoints(user.getPoints() + 1);//Every time we comment we gain points
+
+	writeFile.close();
+}
+
 void p_open(size_t postIndex, char* filename, User& user, Question& question, Comment& comment, size_t currentIndex ,Vector<Topic>& topics)
 {
 	char command[SIZE];
@@ -389,79 +581,11 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 
 		if (stringComp(command, "comment") == true)
 		{
-			createComment(user, question, comment, filename);
-			question.setComment(comment);
-
-			for (size_t i = 0; i < topics[currentIndex].getQuestions().getSize(); ++i)
-			{
-				if (i == question.getId())
-				{
-					topics[currentIndex].setQuestionAtIndex(i, question);
-				}
-			}
-
-			std::ofstream writeFile(filename, std::ios::app);
-			if (!writeFile.is_open())
-			{
-				throw std::exception("ERROR! The file could not be opened!");
-			}
-
-			writeFile << comment;
-			std::cout << std::endl << "Your comment has been successfully posted!" << std::endl;
-			std::cout << "Tap to continue! ";
-
-			user.setPoints(user.getPoints() + 1);//Every time we comment we gain points
-
-			writeFile.close();
+			commentCommand(user, question, comment, filename, topics, currentIndex);
 		}
 		else if (stringComp(command, "comments") == true)
 		{
-			Vector<Comment> commentsToPrint;
-
-			readCommentsFromFile(filename, commentsToPrint);
-
-			size_t commentsCount = 0;
-			for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
-			{
-				if (question.getId() == commentsToPrint[i].getQId())
-				{
-					commentsToPrint[i].printCommentInfo();
-					++commentsCount;
-				}
-			}
-
-			if (commentsCount == 0)
-			{
-				std::cout << std::endl << "There is no comments under the selected post!" << std::endl;
-			}
-			else
-			{
-				char command[SIZE];
-				commentsCommandsList(command);
-
-				if (stringComp(command, "upvote") == true)
-				{
-					upVote(doUpvote, commentsToPrint);
-					topics[currentIndex].clearQuestionComments(postIndex);
-					topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
-					rewriteFileInfo(filename, topics, currentIndex);
-				}
-				else if (stringComp(command, "downvote") == true)
-				{
-					downVote(doDownvote, commentsToPrint);
-					topics[currentIndex].clearQuestionComments(postIndex);
-					topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
-					rewriteFileInfo(filename, topics, currentIndex);
-				}
-				else if (stringComp(command, "quit") == true)
-				{
-					return;
-				}
-				else
-				{
-					std::cout << std::endl << "Wrong command!" << std::endl;
-				}
-			}
+			comments(filename, question, doUpvote, doDownvote, postIndex, topics, currentIndex, user);
 		}
 		else if(stringComp(command, "p_close") == true)
 		{

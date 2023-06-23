@@ -166,7 +166,6 @@ void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
 void readCommentsFromFile(char* filename, Vector<Comment>& comments)
 {
 	Comment tempComment;
-	Question tempQuestion;
 	size_t counter = 0;
 	bool isComment = false;
 	size_t tempId;
@@ -227,6 +226,59 @@ void readCommentsFromFile(char* filename, Vector<Comment>& comments)
 		}
 
 		if (isComment == true)
+		{
+			++counter;
+		}
+	}
+
+	stream.close();
+}
+
+void readRepliesFromFile(char* filename, Vector<Reply>& replies)
+{
+	Reply tempReply;
+	size_t counter = 0;
+	bool isReply = false;
+	size_t tempId;
+	size_t numberOfReplies = 0;
+
+	std::ifstream stream(filename);
+	if (!stream.is_open())
+	{
+		throw std::exception("ERROR! The file could not be opened!");
+	}
+
+	while (!stream.eof())
+	{
+		char buffer[BUFFER_SIZE] = { '\0' };
+		stream.getline(buffer, BUFFER_SIZE);
+
+		if (stringComp(buffer, "reply:"))
+		{
+			isReply = true;
+		}
+
+		if (counter == 1 && isReply == true)
+		{
+			tempId = turnCharArrayIntoNum(buffer, tempReply.getId());
+			tempReply.setId(tempId);
+		}
+		else if (counter == 2 && isReply == true)
+		{
+			tempReply.setData(buffer);
+		}
+		else if (counter == 3 && isReply == true)
+		{
+			tempReply.setCreator(buffer);
+
+			replies.pushBack(tempReply);
+
+			++numberOfReplies;
+			counter = 0;
+			isReply = false;
+		}
+
+		if (isReply == true)
 		{
 			++counter;
 		}

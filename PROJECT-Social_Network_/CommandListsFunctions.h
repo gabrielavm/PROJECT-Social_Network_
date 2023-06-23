@@ -70,7 +70,9 @@ const void commentsCommandsList(char* command)
 	std::cout << std::endl << "Commands list:" << std::endl
 		<< "1. 'upvote'" << std::endl
 		<< "2. 'downvote'" << std::endl
-		<< "3. 'quit'" << std::endl
+		<< "3. 'replies<id>' - see all the replies for some comment(by supplied comment's id)" << std::endl
+		<< "4. 'reply<id>' - reply to a comment by supplied id" << std::endl
+		<< "5. 'quit'" << std::endl
 		<< std::endl << "Enter your command: ";
 
 	std::cin.getline(command, MAX_VALUES_SIZE);
