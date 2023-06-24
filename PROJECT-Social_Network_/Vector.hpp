@@ -6,6 +6,7 @@
 #include <iostream>
 #include <exception>
 #include <fstream>
+
 template <typename T>
 class Vector 
 {

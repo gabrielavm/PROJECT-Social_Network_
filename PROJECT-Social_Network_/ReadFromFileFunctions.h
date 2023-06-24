@@ -163,7 +163,7 @@ void readQuestionsFromFile(std::ifstream& stream, Topic& topic)
 	std::cout << std::endl;
 }
 
-void readCommentsFromFile(char* filename, Vector<Comment>& comments)
+void readCommentsFromFile(const char* filename, Vector<Comment>& comments)
 {
 	Comment tempComment;
 	size_t counter = 0;
@@ -234,7 +234,7 @@ void readCommentsFromFile(char* filename, Vector<Comment>& comments)
 	stream.close();
 }
 
-void readRepliesFromFile(char* filename, Vector<Reply>& replies)
+void readRepliesFromFile(const char* filename, Vector<Reply>& replies)
 {
 	Reply tempReply;
 	size_t counter = 0;

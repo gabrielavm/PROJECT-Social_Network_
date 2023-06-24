@@ -3,7 +3,7 @@
 #include "CommandListsFunctions.h"
 #include "ReadFromFileFunctions.h"
 
-void signUp(bool& failRegistration, Vector<User>& users)
+void signUp(bool& failRegistration, const Vector<User>& users)
 {
 	User user;
 
@@ -53,7 +53,7 @@ void signUp(bool& failRegistration, Vector<User>& users)
 	inputUserInFile.close();
 }
 
-bool findUser(Vector<User>& users, User& user)
+bool findUser(const Vector<User>& users, User& user)
 {
 	for (size_t i = 0; i < users.getSize(); ++i)
 	{
@@ -107,7 +107,7 @@ void logIn(Vector<User>& users, User& user, bool& exit)
 	readFromFile.close();
 }
 
-void saveUserInfo(User& user, Vector<User>& users)
+void saveUserInfo(const User& user, Vector<User>& users)
 {
 	for (size_t i = 0; i < users.getSize(); ++i)
 	{
@@ -148,7 +148,7 @@ void logOut(User& user, Vector<User>& users)
 	user.setPoints(0);
 }
 
-bool topicExistance(Vector<Topic>& topics, const MyString& topicName)
+bool topicExistance(const Vector<Topic>& topics, const MyString& topicName)
 {
 	for (size_t i = 0; i < topics.getSize(); ++i)
 	{
@@ -223,7 +223,7 @@ void createTopic(const User& user, Vector<Topic>& topics)
 	}
 }
 
-void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics, bool& goBack)
+void search(const char* keyword, const Vector<Topic>& topics, Vector<Topic>& selectedTopics, bool& goBack)
 {
 	size_t countOfSelectedTopics = 0;//counter for the added topics in 'selectedTopics' array of class Topic
 	//when this counter is equal to zero that means that there is no topic that include the keyword 
@@ -264,7 +264,7 @@ void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics,
 	}
 }
 
-void createQuestion(Question& question, char* filename)
+void createQuestion(Question& question, const char* filename)
 {
 	char askQuestion[SIZE];
 	std::cout << std::endl << "Enter your question: ";
@@ -279,7 +279,7 @@ void createQuestion(Question& question, char* filename)
 	question.setId(getLinesCount(filename));
 }
 
-void createComment(User& user, Question& question, Comment& comment, char* filename)
+void createComment(const User& user, const Question& question, Comment& comment, const char* filename)
 {
 	char commentText[SIZE];
 	std::cout << std::endl << "Enter your comment: ";
@@ -292,7 +292,7 @@ void createComment(User& user, Question& question, Comment& comment, char* filen
 	comment.setId(getLinesCount(filename));
 }
 
-void rewriteFileInfo(char* filename, Vector<Topic>& topics, size_t currentIndex)
+void rewriteFileInfo(const char* filename, const Vector<Topic>& topics, size_t currentIndex)
 {
 	std::ofstream rewrite(filename, std::ios::trunc);
 	if (!rewrite.is_open())
@@ -370,7 +370,7 @@ void downVote(bool* doDownvote, Vector<Comment>& commentsToPrint)
 	}
 }
 
-void replies(Vector<Comment> commentsToPrint)
+void replies(const Vector<Comment> commentsToPrint)
 {
 	std::cout << std::endl << "Enter the id of the comment you want to see replies for: ";
 	size_t commentId;
@@ -397,7 +397,7 @@ void replies(Vector<Comment> commentsToPrint)
 	}
 }
 
-void createReply(User& user, Reply& reply, size_t id, Comment& comment)
+void createReply(const User& user, Reply& reply, size_t id, Comment& comment)
 {
 	char data[SIZE];
 	std::cout << std::endl << "Enter your reply: ";
@@ -422,8 +422,8 @@ void setRepliesToComment(const Vector<Reply>& replies, Comment& comment)
 	}
 }
 
-void comments(char* filename, Question& question, bool* doUpvote, bool* doDownvote, size_t postIndex,
-	Vector<Topic>& topics, size_t currentIndex, User& user)
+void comments(const char* filename, const Question& question, bool* doUpvote, bool* doDownvote,
+	size_t postIndex, Vector<Topic>& topics, size_t currentIndex, const User& user)
 {
 	Vector<Comment> commentsToPrint;
 	Vector<Reply> repliesToPrint;
@@ -528,8 +528,8 @@ void comments(char* filename, Question& question, bool* doUpvote, bool* doDownvo
 	}
 }
 
-void commentCommand(User& user, Question& question, Comment& comment, char* filename, Vector<Topic>& topics,
-	size_t currentIndex)
+void commentCommand(User& user, Question& question, Comment& comment, const char* filename,
+	Vector<Topic>& topics, size_t currentIndex)
 {
 	createComment(user, question, comment, filename);
 	question.setComment(comment);
@@ -557,7 +557,8 @@ void commentCommand(User& user, Question& question, Comment& comment, char* file
 	writeFile.close();
 }
 
-void p_open(size_t postIndex, char* filename, User& user, Question& question, Comment& comment, size_t currentIndex ,Vector<Topic>& topics)
+void p_open(size_t postIndex, const char* filename, User& user, Question& question, Comment& comment,
+	size_t currentIndex, Vector<Topic>& topics)
 {
 	char command[SIZE];
 	size_t counter = 0;
@@ -598,7 +599,8 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 	delete[] doDownvote;
 }
 
-void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
+void open(User& user, Vector<User>& users, size_t currentIndex, Vector<Topic>& selectedTopics, 
+	const MyString& filename, bool& exit)
 {
 	MyString tempString = filename;
 	tempString += ".txt";
@@ -612,8 +614,9 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 	}
 
 	std::cin.get();
-	std::cout << std::endl << "Welcome to '" << filename.c_str() << "'!" << std::endl << std::endl;
+	std::cout << std::endl << "Welcome to '" << filename.c_str() << "'!" << std::endl;
 
+	std::cout << std::endl << "QUESTIONS: " << std::endl;
 	readQuestionsFromFile(readTopic, selectedTopics[currentIndex]);
 	Vector<Question> tempQuestions;
 
@@ -751,7 +754,7 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 	delete[] tempFilename;
 }
 
-const void printSelectedTopics(Vector<Topic>& selectedTopics)
+const void printSelectedTopics(const Vector<Topic>& selectedTopics)
 {
 	std::cout << std::endl << "Selected topics: " << std::endl;
 	for (size_t i = 0; i < selectedTopics.getSize(); ++i)
@@ -761,7 +764,8 @@ const void printSelectedTopics(Vector<Topic>& selectedTopics)
 	}
 }
 
-void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
+void commandsForTopics(User& user, Vector<User>& users, char* commandForTopics,
+	Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
 {
 	bool localExit = false;
 
@@ -878,7 +882,8 @@ void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, V
 	}
 }
 
-void mainCommandsFunction(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& topics, Vector<User>& users)
+void mainCommandsFunction(bool& exit, bool& logout, char* command, User& user,
+	Vector<Topic>& topics, Vector<User>& users)
 {
 	Vector<Topic> selectedTopics;
 	char commandForTopics[SIZE];

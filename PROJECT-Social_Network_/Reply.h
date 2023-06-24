@@ -6,7 +6,7 @@ class Reply
 {
 	MyString data;
 	MyString creator;
-	size_t id;//This variable will be for the id of the comment
+	size_t id = 0;//This variable will be for the id of the comment
 	//we reply to
 	
 public:
