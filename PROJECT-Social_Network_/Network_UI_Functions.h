@@ -710,6 +710,7 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 				std::cin.get();
 				std::cin.getline(title, MAX_VALUES_SIZE);
 
+				std::cout << std::endl << "Tap to open the post!" << std::endl;
 				for (size_t i = 0; i < selectedTopics[currentIndex].getQuestions().getSize(); ++i)
 				{
 					if (stringComp(title, selectedTopics[currentIndex].getQuestions()[i].getTitle().c_str()))
@@ -832,7 +833,7 @@ void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, V
 				std::cout << "Enter the full title: ";
 				std::cin.get();
 				std::cin.getline(currentTitle, MAX_VALUES_SIZE);
-				std::cout << "Tap to open the topic!" << std::endl;
+				std::cout << std::endl << "Tap to open the topic!" << std::endl;
 
 				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{

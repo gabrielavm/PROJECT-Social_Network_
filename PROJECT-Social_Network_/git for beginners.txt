@@ -50,6 +50,11 @@ reply:
 /Example REPLY 3/
 user5
 
+reply:
+29
+/Example REPLY 4/
+user5
+
 comment:
 9
 37
@@ -66,7 +71,10 @@ user5
 0
 0
 
-reply:
-29
-/Example REPLY 4/
+comment:
+9
+73
 user5
+/Example question 7/
+1
+0
