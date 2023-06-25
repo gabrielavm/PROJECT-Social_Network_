@@ -59,7 +59,7 @@ bool stringComp(const char* firstStr, const char* secondStr)
 	return false;
 }
 
-void stringCopy(MyString& original, char* copy)
+void stringCopy(const MyString& original, char* copy)
 {
 	for (int i = 0; i < original.length() + 1; ++i)
 	{

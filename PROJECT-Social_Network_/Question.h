@@ -17,9 +17,11 @@ public:
 	void setTitle(const MyString& title);
 	void setContent(const MyString& content);
 	void setComment(const Comment& comment);
+	void setCommentReplies(size_t index, const Vector<Reply> replies);
 	void setId(const size_t id);
 
 	void clearComments();
+	void clearCommentsReplies(size_t index);
 
 	const MyString& getTitle() const;
 	const MyString& getContent() const;

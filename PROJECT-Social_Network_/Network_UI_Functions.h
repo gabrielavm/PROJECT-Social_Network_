@@ -3,7 +3,7 @@
 #include "CommandListsFunctions.h"
 #include "ReadFromFileFunctions.h"
 
-void signUp(bool& failRegistration, Vector<User>& users)
+void signUp(bool& failRegistration, const Vector<User>& users)
 {
 	User user;
 
@@ -53,7 +53,7 @@ void signUp(bool& failRegistration, Vector<User>& users)
 	inputUserInFile.close();
 }
 
-bool findUser(Vector<User>& users, User& user)
+bool findUser(const Vector<User>& users, User& user)
 {
 	for (size_t i = 0; i < users.getSize(); ++i)
 	{
@@ -107,7 +107,7 @@ void logIn(Vector<User>& users, User& user, bool& exit)
 	readFromFile.close();
 }
 
-void saveUserInfo(User& user, Vector<User>& users)
+void saveUserInfo(const User& user, Vector<User>& users)
 {
 	for (size_t i = 0; i < users.getSize(); ++i)
 	{
@@ -148,7 +148,7 @@ void logOut(User& user, Vector<User>& users)
 	user.setPoints(0);
 }
 
-bool topicExistance(Vector<Topic>& topics, const MyString& topicName)
+bool topicExistance(const Vector<Topic>& topics, const MyString& topicName)
 {
 	for (size_t i = 0; i < topics.getSize(); ++i)
 	{
@@ -223,7 +223,7 @@ void createTopic(const User& user, Vector<Topic>& topics)
 	}
 }
 
-void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics, bool& goBack)
+void search(const char* keyword, const Vector<Topic>& topics, Vector<Topic>& selectedTopics, bool& goBack)
 {
 	size_t countOfSelectedTopics = 0;//counter for the added topics in 'selectedTopics' array of class Topic
 	//when this counter is equal to zero that means that there is no topic that include the keyword 
@@ -264,7 +264,7 @@ void search(char* keyword, Vector<Topic>& topics, Vector<Topic>& selectedTopics,
 	}
 }
 
-void createQuestion(Question& question, char* filename)
+void createQuestion(Question& question, const char* filename)
 {
 	char askQuestion[SIZE];
 	std::cout << std::endl << "Enter your question: ";
@@ -279,7 +279,7 @@ void createQuestion(Question& question, char* filename)
 	question.setId(getLinesCount(filename));
 }
 
-void createComment(User& user, Question& question, Comment& comment, char* filename)
+void createComment(const User& user, const Question& question, Comment& comment, const char* filename)
 {
 	char commentText[SIZE];
 	std::cout << std::endl << "Enter your comment: ";
@@ -292,7 +292,7 @@ void createComment(User& user, Question& question, Comment& comment, char* filen
 	comment.setId(getLinesCount(filename));
 }
 
-void rewriteFileInfo(char* filename, Vector<Topic>& topics, size_t currentIndex)
+void rewriteFileInfo(const char* filename, const Vector<Topic>& topics, size_t currentIndex)
 {
 	std::ofstream rewrite(filename, std::ios::trunc);
 	if (!rewrite.is_open())
@@ -307,6 +307,11 @@ void rewriteFileInfo(char* filename, Vector<Topic>& topics, size_t currentIndex)
 		for (size_t k = 0; k < topics[currentIndex].getQuestions()[j].getComments().getSize(); ++k)
 		{
 			rewrite << topics[currentIndex].getQuestions()[j].getComments()[k];
+
+			for (size_t p = 0; p < topics[currentIndex].getQuestions()[j].getComments()[k].getReplies().getSize(); ++p)
+			{
+				rewrite << topics[currentIndex].getQuestions()[j].getComments()[k].getReplies()[p];
+			}
 		}
 	}
 
@@ -365,7 +370,195 @@ void downVote(bool* doDownvote, Vector<Comment>& commentsToPrint)
 	}
 }
 
-void p_open(size_t postIndex, char* filename, User& user, Question& question, Comment& comment, size_t currentIndex ,Vector<Topic>& topics)
+void replies(const Vector<Comment> commentsToPrint)
+{
+	std::cout << std::endl << "Enter the id of the comment you want to see replies for: ";
+	size_t commentId;
+	std::cin >> commentId;
+
+	for (size_t j = 0; j < commentsToPrint.getSize(); ++j)
+	{
+		if (commentsToPrint[j].getId() == commentId)
+		{
+			if (commentsToPrint[j].getReplies().getSize() > 0)
+			{
+				std::cout << std::endl << "Replies for { id: " << commentId << " }" << std::endl;
+				for (size_t i = 0; i < commentsToPrint[j].getReplies().getSize(); ++i)
+				{
+					std::cout << i + 1 << ". ";
+					commentsToPrint[j].getReplies()[i].printReplyInfo();
+				}
+			}
+			else
+			{
+				std::cout << std::endl << "There is no replies for this comment!" << std::endl;
+			}
+		}
+	}
+}
+
+void createReply(const User& user, Reply& reply, size_t id, Comment& comment)
+{
+	char data[SIZE];
+	std::cout << std::endl << "Enter your reply: ";
+	std::cin.get();
+	std::cin.getline(data, MAX_VALUES_SIZE);
+
+	reply.setData(data);
+	reply.setCreator(user.getFirstName());
+	reply.setId(id);
+
+	comment.setReply(reply);
+}
+
+void setRepliesToComment(const Vector<Reply>& replies, Comment& comment)
+{
+	for (size_t i = 0; i < replies.getSize(); ++i)
+	{
+		if (comment.getId() == replies[i].getId())
+		{
+			comment.setReply(replies[i]);
+		}
+	}
+}
+
+void comments(const char* filename, const Question& question, bool* doUpvote, bool* doDownvote,
+	size_t postIndex, Vector<Topic>& topics, size_t currentIndex, const User& user)
+{
+	Vector<Comment> commentsToPrint;
+	Vector<Reply> repliesToPrint;
+
+	readCommentsFromFile(filename, commentsToPrint);
+
+	repliesToPrint.clear();
+	readRepliesFromFile(filename, repliesToPrint);
+
+	//set the replies to the comments they belong to
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+	{
+		setRepliesToComment(repliesToPrint, commentsToPrint[i]);
+	}
+
+	std::cout << std::endl << "COMMENTS: " << std::endl;
+
+	size_t commentsCount = 0;
+	for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+	{
+		if (question.getId() == commentsToPrint[i].getQId())
+		{
+			commentsToPrint[i].printCommentInfo();
+			++commentsCount;
+		}
+	}
+
+	if (commentsCount == 0)
+	{
+		std::cout << std::endl << "There is no comments under the selected post!" << std::endl;
+	}
+	else
+	{
+		char command[SIZE];
+		commentsCommandsList(command);
+
+		if (stringComp(command, "upvote") == true)
+		{
+			upVote(doUpvote, commentsToPrint);
+			topics[currentIndex].clearQuestionComments(postIndex);
+			topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
+			rewriteFileInfo(filename, topics, currentIndex);
+		}
+		else if (stringComp(command, "downvote") == true)
+		{
+			downVote(doDownvote, commentsToPrint);
+			topics[currentIndex].clearQuestionComments(postIndex);
+			topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
+			rewriteFileInfo(filename, topics, currentIndex);
+		}
+		else if (stringComp(command, "replies") == true)
+		{
+			repliesToPrint.clear();
+			readRepliesFromFile(filename, repliesToPrint);
+
+			//set the replies to the comments they belong to
+			for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+			{
+				commentsToPrint[i].clearReplies();
+				setRepliesToComment(repliesToPrint, commentsToPrint[i]);
+			}
+			topics[currentIndex].clearQuestionComments(postIndex);
+			topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
+
+			replies(commentsToPrint);
+		}
+		else if (stringComp(command, "reply") == true)
+		{
+			Reply reply;
+
+			std::cout << std::endl << "Enter the id of the comment you want to reply to: ";
+			size_t commentId;
+			std::cin >> commentId;
+
+			for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
+			{
+				if (commentsToPrint[i].getId() == commentId)
+				{
+					createReply(user, reply, commentId, commentsToPrint[i]);
+				}
+			}
+
+			std::ofstream writeReply(filename, std::ios::app);
+			if (!writeReply.is_open())
+			{
+				throw std::exception("ERROR! The file could not be opened!");
+			}
+
+			writeReply << reply;
+			std::cout << std::endl << "Your reply has been successfully posted!" << std::endl;
+
+			writeReply.close();
+		}
+		else if (stringComp(command, "quit") == true)
+		{
+			return;
+		}
+		else
+		{
+			std::cout << std::endl << "Wrong command!" << std::endl;
+		}
+	}
+}
+
+void commentCommand(User& user, Question& question, Comment& comment, const char* filename,
+	Vector<Topic>& topics, size_t currentIndex)
+{
+	createComment(user, question, comment, filename);
+	question.setComment(comment);
+
+	for (size_t i = 0; i < topics[currentIndex].getQuestions().getSize(); ++i)
+	{
+		if (i == question.getId())
+		{
+			topics[currentIndex].setQuestionAtIndex(i, question);
+		}
+	}
+
+	std::ofstream writeFile(filename, std::ios::app);
+	if (!writeFile.is_open())
+	{
+		throw std::exception("ERROR! The file could not be opened!");
+	}
+
+	writeFile << comment;
+	std::cout << std::endl << "Your comment has been successfully posted!" << std::endl;
+	std::cout << "Tap to continue! ";
+
+	user.setPoints(user.getPoints() + 1);//Every time we comment we gain points
+
+	writeFile.close();
+}
+
+void p_open(size_t postIndex, const char* filename, User& user, Question& question, Comment& comment,
+	size_t currentIndex, Vector<Topic>& topics)
 {
 	char command[SIZE];
 	size_t counter = 0;
@@ -389,79 +582,11 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 
 		if (stringComp(command, "comment") == true)
 		{
-			createComment(user, question, comment, filename);
-			question.setComment(comment);
-
-			for (size_t i = 0; i < topics[currentIndex].getQuestions().getSize(); ++i)
-			{
-				if (i == question.getId())
-				{
-					topics[currentIndex].setQuestionAtIndex(i, question);
-				}
-			}
-
-			std::ofstream writeFile(filename, std::ios::app);
-			if (!writeFile.is_open())
-			{
-				throw std::exception("ERROR! The file could not be opened!");
-			}
-
-			writeFile << comment;
-			std::cout << std::endl << "Your comment has been successfully posted!" << std::endl;
-			std::cout << "Tap to continue! ";
-
-			user.setPoints(user.getPoints() + 1);//Every time we comment we gain points
-
-			writeFile.close();
+			commentCommand(user, question, comment, filename, topics, currentIndex);
 		}
 		else if (stringComp(command, "comments") == true)
 		{
-			Vector<Comment> commentsToPrint;
-
-			readCommentsFromFile(filename, commentsToPrint);
-
-			size_t commentsCount = 0;
-			for (size_t i = 0; i < commentsToPrint.getSize(); ++i)
-			{
-				if (question.getId() == commentsToPrint[i].getQId())
-				{
-					commentsToPrint[i].printCommentInfo();
-					++commentsCount;
-				}
-			}
-
-			if (commentsCount == 0)
-			{
-				std::cout << std::endl << "There is no comments under the selected post!" << std::endl;
-			}
-			else
-			{
-				char command[SIZE];
-				commentsCommandsList(command);
-
-				if (stringComp(command, "upvote") == true)
-				{
-					upVote(doUpvote, commentsToPrint);
-					topics[currentIndex].clearQuestionComments(postIndex);
-					topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
-					rewriteFileInfo(filename, topics, currentIndex);
-				}
-				else if (stringComp(command, "downvote") == true)
-				{
-					downVote(doDownvote, commentsToPrint);
-					topics[currentIndex].clearQuestionComments(postIndex);
-					topics[currentIndex].setQuestionComments(postIndex, commentsToPrint);
-					rewriteFileInfo(filename, topics, currentIndex);
-				}
-				else if (stringComp(command, "quit") == true)
-				{
-					return;
-				}
-				else
-				{
-					std::cout << std::endl << "Wrong command!" << std::endl;
-				}
-			}
+			comments(filename, question, doUpvote, doDownvote, postIndex, topics, currentIndex, user);
 		}
 		else if(stringComp(command, "p_close") == true)
 		{
@@ -474,7 +599,8 @@ void p_open(size_t postIndex, char* filename, User& user, Question& question, Co
 	delete[] doDownvote;
 }
 
-void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& selectedTopics, MyString filename, bool& exit)
+void open(User& user, Vector<User>& users, size_t currentIndex, Vector<Topic>& selectedTopics, 
+	const MyString& filename, bool& exit)
 {
 	MyString tempString = filename;
 	tempString += ".txt";
@@ -488,8 +614,9 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 	}
 
 	std::cin.get();
-	std::cout << std::endl << "Welcome to '" << filename.c_str() << "'!" << std::endl << std::endl;
+	std::cout << std::endl << "Welcome to '" << filename.c_str() << "'!" << std::endl;
 
+	std::cout << std::endl << "QUESTIONS: " << std::endl;
 	readQuestionsFromFile(readTopic, selectedTopics[currentIndex]);
 	Vector<Question> tempQuestions;
 
@@ -586,6 +713,7 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 				std::cin.get();
 				std::cin.getline(title, MAX_VALUES_SIZE);
 
+				std::cout << std::endl << "Tap to open the post!" << std::endl;
 				for (size_t i = 0; i < selectedTopics[currentIndex].getQuestions().getSize(); ++i)
 				{
 					if (stringComp(title, selectedTopics[currentIndex].getQuestions()[i].getTitle().c_str()))
@@ -626,7 +754,7 @@ void open(User& user, Vector<User> users, size_t currentIndex, Vector<Topic>& se
 	delete[] tempFilename;
 }
 
-const void printSelectedTopics(Vector<Topic>& selectedTopics)
+const void printSelectedTopics(const Vector<Topic>& selectedTopics)
 {
 	std::cout << std::endl << "Selected topics: " << std::endl;
 	for (size_t i = 0; i < selectedTopics.getSize(); ++i)
@@ -636,7 +764,8 @@ const void printSelectedTopics(Vector<Topic>& selectedTopics)
 	}
 }
 
-void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
+void commandsForTopics(User& user, Vector<User>& users, char* commandForTopics,
+	Vector<Topic>& selectedTopics, bool& goBack, bool& exit)
 {
 	bool localExit = false;
 
@@ -708,7 +837,7 @@ void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, V
 				std::cout << "Enter the full title: ";
 				std::cin.get();
 				std::cin.getline(currentTitle, MAX_VALUES_SIZE);
-				std::cout << "Tap to open the topic!" << std::endl;
+				std::cout << std::endl << "Tap to open the topic!" << std::endl;
 
 				for (size_t i = 0; i < selectedTopics.getSize(); ++i)
 				{
@@ -753,7 +882,8 @@ void commandsForTopics(User& user, Vector<User> users, char* commandForTopics, V
 	}
 }
 
-void mainCommandsFunction(bool& exit, bool& logout, char* command, User& user, Vector<Topic>& topics, Vector<User>& users)
+void mainCommandsFunction(bool& exit, bool& logout, char* command, User& user,
+	Vector<Topic>& topics, Vector<User>& users)
 {
 	Vector<Topic> selectedTopics;
 	char commandForTopics[SIZE];

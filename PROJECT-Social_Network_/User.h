@@ -31,5 +31,6 @@ public:
 	const size_t getPoints() const;
 
 	const void printUsersInfo() const;
+
 	friend std::ostream& operator<<(std::ostream& os, const User& user);
 };

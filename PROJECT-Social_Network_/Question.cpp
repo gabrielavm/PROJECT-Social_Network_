@@ -31,6 +31,14 @@ void Question::setComment(const Comment& comment)
 	comments.pushBack(comment);
 }
 
+void Question::setCommentReplies(size_t index, const Vector<Reply> replies)
+{
+	for (size_t i = 0; i < replies.getSize(); ++i)
+	{
+		comments[index].setReply(replies[i]);
+	}
+}
+
 void Question::setId(const size_t id)
 {
 	if (id < 0)
@@ -46,6 +54,11 @@ void Question::setId(const size_t id)
 void Question::clearComments()
 {
 	comments.clear();
+}
+
+void Question::clearCommentsReplies(size_t index)
+{
+	comments[index].clearReplies();
 }
 
 const MyString& Question::getTitle() const
